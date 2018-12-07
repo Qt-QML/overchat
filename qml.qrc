@@ -1,5 +1,13 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>main.cpp</file>
+        <file>components/Sidebar.qml</file>
+        <file>components/elements/BurgerButton.qml</file>
+        <file>components/elements/TextField.qml</file>
+        <file>components/SlideMenu.qml</file>
+        <file>components/forms/BasicForm.qml</file>
+        <file>components/PopupMenu.qml</file>
+        <file>components/forms/fieldsets/AuthenticationFieldset.qml</file>
     </qresource>
 </RCC>

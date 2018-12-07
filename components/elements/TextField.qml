@@ -1,8 +1,8 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 
-Button {
+TextField {
     id: root
 
-    text: "M"
+
 }

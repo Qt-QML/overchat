@@ -2,49 +2,117 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
-import "./elements" as Elements
+import "../elements" as Elements
 
 Item {
     id: root
 
-    signal menuButtonClicked
+    readonly property int responsiveWidth: 500
+    property int windowWidth: -1;
+    property int windowHeight: -1;
+    property bool wrapOpened: true;
 
-    anchors.fill: parent
+    signal closed(string data);
+
+    width: 300
+    height: 400
+
+    anchors.centerIn: parent
 
     ColumnLayout {
+        anchors.fill: parent
         spacing: 0
 
-        RowLayout {
+        Item {
             id: header
 
-            spacing: 0
-
             Layout.alignment: Qt.AlignTop
+
             Layout.fillWidth: true
+            height: 50
 
-            Elements.BurgerButton {
-                id: menuButton
+            RowLayout {
+                anchors.fill: parent
+                spacing: 0
 
-                Layout.alignment: Qt.AlignLeft
-                Layout.preferredWidth: 50
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-                onClicked: menuButtonClicked()
-            }
+                    color: "red"
 
-            Elements.TextField {
-                id: searchField
+                    Text {
+                        leftPadding: 20
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.pixelSize: 14
+                        text: "Profile"
+                    }
+                }
 
-                Layout.fillWidth: true
+                Button {
+                    Layout.alignment: Qt.AlignRight
+
+                    Layout.preferredWidth: 50
+                    Layout.fillHeight: true
+
+                    text: "X"
+                    onClicked: root.close()
+                }
             }
         }
 
-        Rectangle {
-            color: "lightblue"
+        Item {
+            id: body
 
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            Rectangle {
+                anchors.fill: parent
+
+                color: "blue"
+            }
+
+            Item {
+                id: auth
+
+                anchors.fill: parent
+                anchors.margins: 20
+
+                Text {
+                    id: authLabel
+
+                    font.pixelSize: 14
+                    text: "Authentication"
+                }
+
+                Button {
+                    id: loginButton
+
+                    anchors.top: authLabel.bottom
+                    anchors.left: parent.left
+                    anchors.topMargin: 5
+
+                    text: "LOG IN"
+                }
+            }
         }
 
-        anchors.fill: parent
+        states: [
+            State {
+                when: windowWidth >= responsiveWidth
+
+                PropertyChanges { target: root; width: responsiveWidth - 50 }
+            },
+            State {
+                when: windowWidth < responsiveWidth
+
+                PropertyChanges { target: root; width: windowWidth }
+            }
+        ]
+    }
+
+    function close() {
+        root.closed("data: ww" + windowWidth);
     }
 }
