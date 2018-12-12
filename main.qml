@@ -19,6 +19,10 @@ ApplicationWindow {
 
     title: qsTr("overchat")
 
+    Component.onCompleted: popup.open("./forms/BasicForm.qml")
+
+
+
     SwipeView  {
         id: swipeView
         currentIndex: 0
@@ -84,7 +88,7 @@ ApplicationWindow {
     ListModel {
         id: menuItems
 
-        ListElement { label: "Element 1"; onclick: function() {popup.open("./forms/BasicForm.qml");} }
+        ListElement { label: "Profile"; onclick: function() {popup.open("./forms/BasicForm.qml");} }
         ListElement { label: "Element 2"; onclick: function() {} }
     }
 }

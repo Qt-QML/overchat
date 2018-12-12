@@ -52,14 +52,14 @@ Item {
             when: root.opened === false
 
             PropertyChanges {target: dimmer; opacity: 0; visible: false;}
-            PropertyChanges {target: loaderWrapper; opacity: 0; visible: false;}
+            PropertyChanges {target: loaderWrapper; scale: 0.8; opacity: 0; visible: false;}
         },
         State {
             name: "opened"
             when: root.opened === true
 
             PropertyChanges {target: dimmer; opacity: 0.4; visible: true;}
-            PropertyChanges {target: loaderWrapper; opacity: 1; visible: true;}
+            PropertyChanges {target: loaderWrapper; scale: 1; opacity: 1; visible: true;}
         }
     ]
 
@@ -67,11 +67,12 @@ Item {
         Transition {
             from: "closed"; to: "opened"
             PropertyAnimation { target: dimmer; properties: "opacity"; duration: 300; easing.type: Easing.OutQuad }
+            PropertyAnimation { target: loaderWrapper; properties: "opacity, scale"; duration: 300; easing.type: Easing.OutQuad }
         },
         Transition {
             from: "opened"; to: "closed"
             PropertyAnimation { target: dimmer; properties: "opacity, visible"; duration: 300; easing.type: Easing.InQuad }
-            PropertyAnimation { target: loaderWrapper; properties: "opacity"; duration: 300; easing.type: Easing.OutQuad }
+            PropertyAnimation { target: loaderWrapper; properties: "opacity, scale"; duration: 300; easing.type: Easing.OutQuad }
         }
     ]
 

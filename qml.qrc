@@ -9,5 +9,12 @@
         <file>components/forms/BasicForm.qml</file>
         <file>components/PopupMenu.qml</file>
         <file>components/forms/fieldsets/AuthenticationFieldset.qml</file>
+        <file>components/elements/SubmitButton.qml</file>
+        <file>components/elements/CloseButton.qml</file>
+        <file>components/requests/authentication.js</file>
+        <file>components/requests/essentials.js</file>
+        <file>components/elements/ErrorText.qml</file>
+        <file>components/singletons/User.qml</file>
+        <file>components/singletons/qmldir</file>
     </qresource>
 </RCC>

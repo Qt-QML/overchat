@@ -12,12 +12,15 @@ Item {
     anchors.fill: parent
 
     ColumnLayout {
-        spacing: 0
+        anchors.topMargin: 8
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
+        spacing: 8
 
         RowLayout {
             id: header
 
-            spacing: 0
+            spacing: 8
 
             Layout.alignment: Qt.AlignTop
             Layout.fillWidth: true
@@ -33,6 +36,8 @@ Item {
 
             Elements.TextField {
                 id: searchField
+
+                placeholderText: "Search..."
 
                 Layout.fillWidth: true
             }

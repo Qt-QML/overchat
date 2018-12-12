@@ -3,6 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 import "../elements" as Elements
+import "./fieldsets" as Fieldsets
 
 Item {
     id: root
@@ -19,6 +20,12 @@ Item {
 
     anchors.centerIn: parent
 
+    Rectangle {
+        anchors.fill: parent
+        color: "#071019"
+        radius: 4
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -32,30 +39,30 @@ Item {
             height: 50
 
             RowLayout {
+                anchors.margins: 10
+                anchors.leftMargin: 20
                 anchors.fill: parent
-                spacing: 0
+                spacing: 20
 
-                Rectangle {
+                Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
-                    color: "red"
-
                     Text {
-                        leftPadding: 20
                         anchors.verticalCenter: parent.verticalCenter
-                        font.pixelSize: 14
+                        font.pixelSize: 18
+                        font.bold: true
+                        color: "white"
                         text: "Profile"
                     }
                 }
 
-                Button {
+                Elements.CloseButton {
                     Layout.alignment: Qt.AlignRight
 
-                    Layout.preferredWidth: 50
+                    Layout.preferredWidth: 30
                     Layout.fillHeight: true
 
-                    text: "X"
                     onClicked: root.close()
                 }
             }
@@ -67,34 +74,10 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Rectangle {
-                anchors.fill: parent
-
-                color: "blue"
-            }
-
-            Item {
+            Fieldsets.AuthenticationFieldset {
                 id: auth
 
-                anchors.fill: parent
-                anchors.margins: 20
 
-                Text {
-                    id: authLabel
-
-                    font.pixelSize: 14
-                    text: "Authentication"
-                }
-
-                Button {
-                    id: loginButton
-
-                    anchors.top: authLabel.bottom
-                    anchors.left: parent.left
-                    anchors.topMargin: 5
-
-                    text: "LOG IN"
-                }
             }
         }
 

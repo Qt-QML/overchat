@@ -1,14 +1,14 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.4
+import QtQuick.Controls 2.2
 
-TextField {
+Button {
     id: root
 
-    color: "white"
+    text: "X"
 
     Component.onCompleted: function() {
-        background.radius = 4
-        background.color = "#152433"
+        background.color = "#071019"
         background.border.color = "transparent"
+        contentItem.color = "white"
     }
 }
