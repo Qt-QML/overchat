@@ -6,37 +6,15 @@ Qt.include("essentials.js")
 const REST_REGISTER_URI = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=" + API_KEY;
 const REST_LOGIN_URI = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=" + API_KEY;
 
-function register(email, password, cb) {
-    console.log("Register request");
-
-    if (!cb) {console.error("ERR! No Callback provided."); return;}
-
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function() {
-        print('xhr: on ready state change: ' + xhr.readyState)
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-//            if (cb) {
-                var res = JSON.parse(xhr.responseText.toString())
-//                cb(res);
-            console.log("result:", res);
-//            }
-        }
-    }
-
-    xhr.open("POST", REST_REGISTER_URI);
-
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Accept', 'application/json');
-
-    var data = JSON.stringify({email: email, password: password, returnSecureToken: true});
-
-    xhr.send(data);
+function login(email, password, cb) {
+    return authRequest(email, password, REST_LOGIN_URI, cb);
 }
 
-function login(email, password, cb) {
-    console.log("Login request");
+function register(email, password, cb) {
+    return authRequest(email, password, REST_REGISTER_URI, cb);
+}
 
+function authRequest(email, password, uri, cb) {
     if (!cb) {console.error("ERR! No Callback provided."); return;}
 
     var errors = [];
@@ -63,7 +41,7 @@ function login(email, password, cb) {
         }
     }
 
-    xhr.open("POST", REST_LOGIN_URI);
+    xhr.open("POST", uri);
 
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.setRequestHeader('Accept', 'application/json');
@@ -71,4 +49,6 @@ function login(email, password, cb) {
     var data = JSON.stringify({email: email, password: password, returnSecureToken: true});
 
     xhr.send(data);
+
+    return 0;
 }

@@ -2,6 +2,8 @@ import QtQuick 2.9
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
 
+import "qrc:/components/singletons/."
+
 import "./components" as Components
 
 ApplicationWindow {
@@ -19,8 +21,11 @@ ApplicationWindow {
 
     title: qsTr("overchat")
 
-    Component.onCompleted: popup.open("./forms/BasicForm.qml")
-
+    Component.onCompleted: function() {
+        if (!User.authenticated) {
+            popup.open("./forms/ProfileForm.qml")
+        }
+    }
 
 
     SwipeView  {
@@ -88,7 +93,7 @@ ApplicationWindow {
     ListModel {
         id: menuItems
 
-        ListElement { label: "Profile"; onclick: function() {popup.open("./forms/BasicForm.qml");} }
+        ListElement { label: "Profile"; onclick: function() {popup.open("./forms/ProfileForm.qml");} }
         ListElement { label: "Element 2"; onclick: function() {} }
     }
 }

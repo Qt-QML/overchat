@@ -2,8 +2,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
-//import "qrc:/components/singletons/."
-import "../../singletons"
+import "qrc:/components/singletons/."
 
 import "../../elements" as Elements
 
@@ -56,11 +55,20 @@ Item {
             }
         }
 
-        RowLayout {
+        GridLayout {
             id: fields
+
+            width: parent.width
+            height: 20
+
+            columns: 2
 
             Elements.TextField {
                 id: emailField
+
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
                 placeholderText: "E-mail"
 
                 //TODO: Remove
@@ -73,7 +81,13 @@ Item {
 
             Elements.TextField {
                 id: passwordField
+
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
                 placeholderText: "Password"
+
+                echoMode: TextInput.Password
 
                 font.pixelSize: 14
 
@@ -106,6 +120,18 @@ Item {
                 id: registerButton
 
                 text: "REGISTER"
+
+                onClicked: function() {
+                    errorText.clear();
+
+                    AuthenticationRequests.register(emailField.text, passwordField.text, onresponse);
+                }
+
+                function onresponse(res) {
+                    if (res.type === "vald") {errorText.showErrors(res.data)}
+                    if (res.type === "succ") {processRegister(res.data)}
+                    if (res.type === "fail") {console.log("ERR!", res.data.error.message, res.data)}
+                }
             }
 
             Elements.SubmitButton {
@@ -147,6 +173,12 @@ Item {
         User.fillLogin(data);
 
         root.login("test");
+    }
+
+    function processRegister(data) {
+        User.fillLogin(data);
+
+        root.register("test");
     }
 
     function processLogout(data) {

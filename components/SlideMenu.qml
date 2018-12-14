@@ -2,6 +2,8 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
+import "qrc:/components/singletons/."
+
 import "./elements" as Elements
 
 Item {
@@ -40,14 +42,32 @@ Item {
         ColumnLayout {
             anchors.fill: parent
 
-            Rectangle {
+            Item {
                 id: sidepaneHeader
 
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: true
                 height: 80
 
-                color: "green"
+                Rectangle {
+                    id: sidepaneHeaderBG
+
+                    anchors.fill: parent
+
+                    color: "green"
+                }
+
+                Text {
+                    id: sidepaneUserEmail
+
+                    anchors.fill: parent
+
+                    text: User.email
+
+                    font.pixelSize: 12
+
+                    elide: Text.ElideRight
+                }
             }
 
             ListView {
