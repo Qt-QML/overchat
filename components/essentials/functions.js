@@ -1,5 +1,12 @@
-const API_KEY = "AIzaSyAnxv6M_ALnWIzO4LpSsAFukER50gb3Umw";
+.pragma library
 
+function connectOnce(sig, slot) {
+    var f = function() {
+        slot.apply(this, arguments)
+        sig.disconnect(f)
+    }
+    sig.connect(f)
+}
 
 function validate(type, name, value, e) {
     var errors = e;

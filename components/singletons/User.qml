@@ -1,118 +1,74 @@
 pragma Singleton
+
+import "../db/user.js" as UserDB
+import "../essentials/functions.js" as Functions
+
 import QtQuick 2.9
 import QtQuick.LocalStorage 2.0
+import Firebase 1.0
 
-QtObject {
+Item {
     id: root
 
-    property bool   authenticated: false
+    readonly property bool   authenticated: backend.email
+    readonly property string email: backend.email
+    readonly property string name: backend.name
 
-    property string accessToken: ""
-    property string refreshToken: ""
-    property int    expiresIn: -1
-
-    property string uid: ""
-    property string email: ""
-
-    // ссылка на объект БД
     property var db;
 
     Component.onCompleted: {
-        initDatabase();
-        readData();
-    }
-
-    function initDatabase() {
-        print('initDatabase()')
-
         db = LocalStorage.openDatabaseSync("overchat", "1.0", "An overchat's database", 100000);
-        db.transaction( function(tx) {
-            print('... create table')
-//            tx.executeSql("DROP TABLE user");
-            tx.executeSql('CREATE TABLE IF NOT EXISTS user(id INT, localId INT, email TEXT, idToken TEXT, refreshToken TEXT, expiresIn INT)');
-        });
+
+        UserDB.initDatabase(db);
     }
 
-    function storeData() {
-        print('storeData()')
-        if (!db) {
-            return;
+    FirebaseBackend {
+        id: backend
+
+        onResult: function(type, data) {
+            if (type === "succ") {
+                var params = backend.getAuthParams();
+                UserDB.storeData(db, params);
+            }
         }
+    }
 
-        db.transaction( function(tx) {
-            print('... check if a user object exists')
-            var result = tx.executeSql('SELECT * from user WHERE id=1');
-            // prepare object to be stored as JSON
-            var obj = [root.uid, root.email, root.accessToken, root.refreshToken, root.expiresIn];
-
-            if(result.rows.length === 1) {
-                // use update
-                print('... user exists, update it')
-                result = tx.executeSql('UPDATE user SET localId=?, email=?, idToken=?, refreshToken=?, expiresIn=?  WHERE id=1', obj);
+    function loginLocal(cb) {
+        UserDB.readData(db, function(auth_params) {
+            if (auth_params) {
+                Functions.connectOnce(backend.onResult, cb);
+                backend.signinByAuthParams(auth_params);
             } else {
-                // use insert
-                print('... user does not exists, create it')
-                result = tx.executeSql('INSERT INTO user VALUES (1,?,?,?,?,?)', obj);
+                cb("void");
             }
         });
     }
 
-    function readData() {
-        print('readData()')
-        if (!db) {
-            cleanup();
+    function login(email, password, name, isReg, cb) {
+        var errors = [];
+        Functions.validate("required", "email", email, errors);
+        Functions.validate("required", "password", password, errors);
+
+        if (isReg) {
+            Functions.validate("required", "name", name, errors);
+        }
+
+        if (errors.length > 0) {
+            cb("vald", errors);
             return;
         }
 
-        db.transaction( function(tx) {
-            print('... read user object')
-            var result = tx.executeSql('SELECT * FROM user WHERE id=1');
-            if (result.rows.length === 1) {
-                print('... update User singleton')
-                var obj = result.rows[0];
+        Functions.connectOnce(backend.onResult, cb);
 
-                fillLogin(obj);
-            } else {
-                cleanup();
-            }
-        });
-    }
-
-    function deleteData() {
-        print('deleteData()')
-        if (!db) {
-            return;
+        if (isReg) {
+            backend.signup(email, password, name);
+        } else {
+            backend.signin(email, password);
         }
-
-        db.transaction( function(tx) {
-            print('... delete user object')
-            tx.executeSql('DELETE FROM user WHERE id=1');
-        });
     }
 
-    function fillLogin(data) {
-        root.accessToken    = data.idToken;
-        root.refreshToken   = data.refreshToken;
-        root.expiresIn      = data.expiresIn;
-
-        root.uid    = data.localId;
-        root.email  = data.email;
-
-        storeData();
-
-        root.authenticated = true;
-    }
-
-    function cleanup() {
-        root.authenticated = false;
-
-        deleteData();
-
-        root.accessToken = "";
-        root.refreshToken = "";
-        root.expiresIn = "";
-
-        root.uid = "";
-        root.email = "";
+    function logout() {
+        backend.signout();
+        UserDB.deleteData(db);
     }
 }

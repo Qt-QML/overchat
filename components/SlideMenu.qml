@@ -57,16 +57,29 @@ Item {
                     color: "green"
                 }
 
-                Text {
-                    id: sidepaneUserEmail
-
+                ColumnLayout {
                     anchors.fill: parent
 
-                    text: User.email
+                    Text {
+                        id: sidepaneUserName
 
-                    font.pixelSize: 12
+                        text: User.name
 
-                    elide: Text.ElideRight
+                        font.bold: true
+                        font.pixelSize: 16
+
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        id: sidepaneUserEmail
+
+                        text: User.email
+
+                        font.pixelSize: 12
+
+                        elide: Text.ElideRight
+                    }
                 }
             }
 

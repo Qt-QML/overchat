@@ -10,11 +10,11 @@
         <file>components/forms/fieldsets/AuthenticationFieldset.qml</file>
         <file>components/elements/SubmitButton.qml</file>
         <file>components/elements/CloseButton.qml</file>
-        <file>components/requests/authentication.js</file>
-        <file>components/requests/essentials.js</file>
         <file>components/elements/ErrorText.qml</file>
         <file>components/singletons/User.qml</file>
         <file>components/singletons/qmldir</file>
         <file>components/forms/ProfileForm.qml</file>
+        <file>components/db/user.js</file>
+        <file>components/essentials/functions.js</file>
     </qresource>
 </RCC>

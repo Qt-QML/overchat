@@ -6,8 +6,6 @@ import "qrc:/components/singletons/."
 
 import "../../elements" as Elements
 
-import "../../requests/authentication.js" as AuthenticationRequests
-
 Item {
     id: root
 
@@ -42,7 +40,7 @@ Item {
                 font.bold: true
 
                 color: "white"
-                text: "John Doe"
+                text: User.name ? User.name : "<name>"
             }
 
             Text {
@@ -55,39 +53,56 @@ Item {
             }
         }
 
-        GridLayout {
+        ColumnLayout {
             id: fields
 
             width: parent.width
-            height: 20
 
-            columns: 2
+            GridLayout {
+                width: parent.width
+                height: 20
 
-            Elements.TextField {
-                id: emailField
+                columns: 2
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+                Elements.TextField {
+                    id: emailField
 
-                placeholderText: "E-mail"
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-                //TODO: Remove
-                text: "sanekmolodoy@gmail.com"
+                    placeholderText: "E-mail"
 
-                font.pixelSize: 14
+                    //TODO: Remove
+                    text: "sanekmolodoy@gmail.com"
 
-                background.implicitHeight: 20
+                    font.pixelSize: 14
+
+                    background.implicitHeight: 20
+                }
+
+                Elements.TextField {
+                    id: passwordField
+
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    placeholderText: "Password"
+
+                    echoMode: TextInput.Password
+
+                    font.pixelSize: 14
+
+                    background.implicitHeight: 20
+                }
             }
 
             Elements.TextField {
-                id: passwordField
+                id: nameField
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                placeholderText: "Password"
-
-                echoMode: TextInput.Password
+                placeholderText: "Name"
 
                 font.pixelSize: 14
 
@@ -106,13 +121,7 @@ Item {
                 onClicked: function() {
                     errorText.clear();
 
-                    AuthenticationRequests.login(emailField.text, passwordField.text, onresponse);
-                }
-
-                function onresponse(res) {
-                    if (res.type === "vald") {errorText.showErrors(res.data)}
-                    if (res.type === "succ") {processLogin(res.data)}
-                    if (res.type === "fail") {console.log("ERR!", res.data.error.message, res.data)}
+                    User.login(emailField.text, passwordField.text, nameField.text, false, onresult);
                 }
             }
 
@@ -124,13 +133,7 @@ Item {
                 onClicked: function() {
                     errorText.clear();
 
-                    AuthenticationRequests.register(emailField.text, passwordField.text, onresponse);
-                }
-
-                function onresponse(res) {
-                    if (res.type === "vald") {errorText.showErrors(res.data)}
-                    if (res.type === "succ") {processRegister(res.data)}
-                    if (res.type === "fail") {console.log("ERR!", res.data.error.message, res.data)}
+                    User.login(emailField.text, passwordField.text, nameField.text, true, onresult);
                 }
             }
 
@@ -140,7 +143,7 @@ Item {
                 text: "LOG OUT"
 
                 onClicked: function() {
-                    processLogout();
+                    User.logout();
                 }
             }
         }
@@ -169,21 +172,21 @@ Item {
         }
     ]
 
-    function processLogin(data) {
-        User.fillLogin(data);
+    function onresult(type, data) {
+        if (type === "vald") {errorText.showErrors(data)}
+        if (type === "succ") {processLogin(data)}
+        if (type === "fail") {console.log("ERR!", data.error.message, data)}
+    }
 
+    function processLogin(data) {
         root.login("test");
     }
 
     function processRegister(data) {
-        User.fillLogin(data);
-
         root.register("test");
     }
 
     function processLogout(data) {
-        User.cleanup();
-
         root.logout("test");
     }
 }

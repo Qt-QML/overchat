@@ -22,9 +22,15 @@ ApplicationWindow {
     title: qsTr("overchat")
 
     Component.onCompleted: function() {
-        if (!User.authenticated) {
-            popup.open("./forms/ProfileForm.qml")
-        }
+        User.loginLocal(function(type, data) {
+            if (type === "fail") {
+                /*внутр. ошибка*/
+                popup.open("./forms/ProfileForm.qml");
+            }
+            if (type === "void") {
+                popup.open("./forms/ProfileForm.qml");
+            }
+        });
     }
 
 
