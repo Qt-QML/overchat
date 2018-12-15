@@ -6,6 +6,7 @@
 
 const QString API_KEY = "AIzaSyAnxv6M_ALnWIzO4LpSsAFukER50gb3Umw";
 
+const QString RDB_URI       = "https://overchat-e401f.firebaseio.com";
 const QString AUTH_URI      = "https://www.googleapis.com/identitytoolkit/v3";
 const QString REFRESH_URI   = "https://securetoken.googleapis.com/v1";
 
@@ -53,14 +54,15 @@ void QFirebase::signin(QString email, QString password) {
 
 void QFirebase::signup(QString email, QString password, QString name) {
     this->_authMethod(email, password, "relyingparty/signupNewUser", name);
+    connect(this, SIGNAL(signinCompleted(QString, QJsonObject, bool)), this, SLOT(_onAuthCompleted(QString, QJsonObject, bool)));
 }
 
 void QFirebase::signinByAuthParams(QJsonObject auth_params) {
     if (!auth_params.contains("email")) {return;}
     if (!auth_params.contains("refreshToken")) {return;}
 
-    this->_possibleEmail = auth_params["email"].toString();
-    this->_possibleName = auth_params["displayName"].toString();
+    this->_possibleEmail    = auth_params["email"].toString();
+    this->_possibleName     = auth_params["displayName"].toString();
 
     this->_refresh(auth_params["refreshToken"].toString());
 }
@@ -91,14 +93,14 @@ void QFirebase::_refresh(QString refresh_token) {
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onAuthResponse(QByteArray)));
 }
 
-void QFirebase::_authMethod(QString email, QString password, QString methodName, QString displayName) {
+void QFirebase::_authMethod(QString email, QString password, QString method_name, QString display_name) {
     if (email.length() == 0) {qFatal("Trying to signin with empty password");}
     if (password.length() == 0) {qFatal("Trying to signin with empty password");}
 
     QJsonObject jsonObj;
 
-    if (displayName != "") {
-        jsonObj["displayName"] = displayName;
+    if (display_name != "") {
+        jsonObj["displayName"] = display_name;
     }
 
     jsonObj["email"] = email;
@@ -107,10 +109,29 @@ void QFirebase::_authMethod(QString email, QString password, QString methodName,
 
     QJsonDocument uploadDoc(jsonObj);
 
-    Firebase *fb = new Firebase(AUTH_URI, methodName);
+    Firebase *fb = new Firebase(AUTH_URI, method_name);
     fb->setValue(uploadDoc, "POST", "key=" + API_KEY);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onAuthResponse(QByteArray)));
+}
+
+void QFirebase::_rdbSaveUserInfo() {
+    if (this->_localId == "") {qFatal("No Local Id in QFirebase instance");}
+    if (this->m_name == "") {qFatal("No User Name in QFirebase instance");}
+
+    QJsonObject jsonObj;
+
+    jsonObj["name"] = this->m_name;
+
+    QJsonDocument uploadDoc(jsonObj);
+
+    qDebug() << jsonObj;
+    qDebug() << uploadDoc;
+
+    Firebase *fb = new Firebase(RDB_URI, "users/" + this->_localId + ".json");
+    fb->setValue(uploadDoc, "PUT", "auth=" + this->_accessToken);
+
+    connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveResponse(QByteArray)));
 }
 
 void QFirebase::_setEmail(const QString &email) {
@@ -132,7 +153,8 @@ void QFirebase::_setName(const QString &name) {
 void QFirebase::_onAuthResponse(QByteArray response) {
     qDebug() << "onAuthResponse";
 
-    bool isRefresh = false;
+    bool isRefresh  = false,
+         isSignup   = false;
 
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
@@ -140,7 +162,7 @@ void QFirebase::_onAuthResponse(QByteArray response) {
     qDebug() << obj;
 
     if (obj.contains("error")) {
-        emit result(QFirebase::RESSTAT_FAIL, obj);
+        emit signinCompleted(QFirebase::RESSTAT_FAIL, obj, false);
 
         this->_possibleEmail = "";
         return;
@@ -148,6 +170,9 @@ void QFirebase::_onAuthResponse(QByteArray response) {
 
     if (obj.contains("kind")) {
         isRefresh = false;
+        if (obj["kind"] == "identitytoolkit#SignupNewUserResponse") {
+            isSignup = true;
+        }
     } else {
         isRefresh = true;
     }
@@ -164,6 +189,22 @@ void QFirebase::_onAuthResponse(QByteArray response) {
     this->_setName(new_name);
 
     this->_possibleEmail = "";
+    this->_possibleName = "";
 
-    emit result(QFirebase::RESSTAT_SUCCESS, QJsonObject());
+    emit signinCompleted(QFirebase::RESSTAT_SUCCESS, this->getAuthParams(), isSignup);
+}
+
+void QFirebase::_onAuthCompleted(QString status, QJsonObject auth_params, bool is_signup) {
+    if (status == QFirebase::RESSTAT_SUCCESS && is_signup == true) {
+        this->_rdbSaveUserInfo();
+    }
+}
+
+void QFirebase::_onRdbSaveResponse(QByteArray response) {
+    qDebug() << "onRdbSaveResponse";
+
+    QJsonDocument document = QJsonDocument::fromJson(response);
+    QJsonObject obj = document.object();
+
+    qDebug() << obj;
 }

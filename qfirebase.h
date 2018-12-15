@@ -33,7 +33,7 @@ signals:
     void emailChanged();
     void nameChanged();
 
-    void result(QString, QJsonObject);
+    void signinCompleted(QString, QJsonObject, bool);
 
 private:
     QString m_email;
@@ -53,8 +53,12 @@ private:
     void _authMethod(QString email, QString password, QString methodName, QString displayName = "");
     void _refresh(QString refresh_token);
 
+    void _rdbSaveUserInfo();
+
 private slots:
     void _onAuthResponse(QByteArray);
+    void _onAuthCompleted(QString, QJsonObject, bool);
+    void _onRdbSaveResponse(QByteArray);
 };
 
 #endif // FIREBASE_H

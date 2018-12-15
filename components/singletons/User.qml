@@ -25,7 +25,7 @@ Item {
     FirebaseBackend {
         id: backend
 
-        onResult: function(type, data) {
+        onSigninCompleted: function(type, data) {
             if (type === "succ") {
                 var params = backend.getAuthParams();
                 UserDB.storeData(db, params);
@@ -36,7 +36,7 @@ Item {
     function loginLocal(cb) {
         UserDB.readData(db, function(auth_params) {
             if (auth_params) {
-                Functions.connectOnce(backend.onResult, cb);
+                Functions.connectOnce(backend.onSigninCompleted, cb);
                 backend.signinByAuthParams(auth_params);
             } else {
                 cb("void");
@@ -58,7 +58,7 @@ Item {
             return;
         }
 
-        Functions.connectOnce(backend.onResult, cb);
+        Functions.connectOnce(backend.onSigninCompleted, cb);
 
         if (isReg) {
             backend.signup(email, password, name);
@@ -70,5 +70,10 @@ Item {
     function logout() {
         backend.signout();
         UserDB.deleteData(db);
+    }
+
+    function getUserList() {
+        // backend.getUsers();
+        // remove self from list
     }
 }
