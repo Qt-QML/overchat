@@ -2,6 +2,8 @@ import QtQuick 2.9
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
 
+import QtQuick.Dialogs 1.0
+
 import "qrc:/components/singletons/."
 
 import "./components" as Components
@@ -100,6 +102,21 @@ ApplicationWindow {
         id: menuItems
 
         ListElement { label: "Profile"; onclick: function() {popup.open("./forms/ProfileForm.qml");} }
-        ListElement { label: "Element 2"; onclick: function() {} }
+        ListElement { label: "Add User"; onclick: function() {popup.open("./forms/UserAddForm.qml");} }
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a file"
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialog.fileUrls)
+            Qt.quit()
+        }
+        onRejected: {
+            console.log("Canceled")
+            Qt.quit()
+        }
+        Component.onCompleted: visible = true
     }
 }

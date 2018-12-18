@@ -16,5 +16,6 @@
         <file>components/forms/ProfileForm.qml</file>
         <file>components/db/user.js</file>
         <file>components/essentials/functions.js</file>
+        <file>components/forms/UserAddForm.qml</file>
     </qresource>
 </RCC>

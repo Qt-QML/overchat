@@ -2,6 +2,8 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
+import "qrc:/components/singletons/."
+
 import "../elements" as Elements
 import "./fieldsets" as Fieldsets
 
@@ -13,10 +15,13 @@ Item {
     property int windowHeight: -1;
     property bool wrapOpened: true;
 
+    property string userId: "";
+    property string userName: "Select User";
+
     signal closed(string data);
 
     width: 300
-    height: 400
+    height: 200
 
     anchors.centerIn: parent
 
@@ -53,7 +58,7 @@ Item {
                         font.pixelSize: 18
                         font.bold: true
                         color: "white"
-                        text: "Profile"
+                        text: "Add User"
                     }
                 }
 
@@ -74,8 +79,32 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Fieldsets.AuthenticationFieldset {
-                id: auth
+            ComboBox {
+                id: userComboBox
+
+                width: 200
+                model: User.userList
+
+                delegate: ItemDelegate {
+                    text: modelData.name
+
+                    onClicked: function() {
+                        root.userId = modelData.id;
+                        root.userName = modelData.name;
+                    }
+                }
+
+                displayText: root.userName
+            }
+        }
+
+        Elements.SubmitButton {
+            id: logoutButton
+
+            text: "ADD USER"
+
+            onClicked: function() {
+//                User.logout();
             }
         }
 

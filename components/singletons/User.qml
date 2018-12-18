@@ -6,6 +6,7 @@ import "../essentials/functions.js" as Functions
 import QtQuick 2.9
 import QtQuick.LocalStorage 2.0
 import Firebase 1.0
+import UserListObject 1.0
 
 Item {
     id: root
@@ -13,6 +14,7 @@ Item {
     readonly property bool   authenticated: backend.email
     readonly property string email: backend.email
     readonly property string name: backend.name
+    readonly property alias  userList: backend.userList
 
     property var db;
 
@@ -30,6 +32,12 @@ Item {
                 var params = backend.getAuthParams();
                 UserDB.storeData(db, params);
             }
+
+            backend.updateUserList();
+        }
+
+        onUserListChanged: function() {
+            var ul = backend.userList;
         }
     }
 

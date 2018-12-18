@@ -20,7 +20,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     firebase.cpp \
-    qfirebase.cpp
+    qfirebase.cpp \
+    userlistobject.cpp
 
 RESOURCES += qml.qrc
 
@@ -40,4 +41,5 @@ DISTFILES += \
 
 HEADERS += \
     firebase.h \
-    qfirebase.h
+    qfirebase.h \
+    userlistobject.h

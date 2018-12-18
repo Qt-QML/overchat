@@ -1,4 +1,5 @@
 #include "qfirebase.h"
+#include "userlistobject.h"
 
 #include "firebase.h"
 #include <QJsonObject>
@@ -28,6 +29,10 @@ QString QFirebase::email() {
 
 QString QFirebase::name() {
     return m_name;
+}
+
+QList<QObject*> QFirebase::userList() {
+    return m_user_list;
 }
 
 QJsonObject QFirebase::getAuthParams() {
@@ -77,6 +82,11 @@ void QFirebase::signout() {
     this->_setName("");
 }
 
+void QFirebase::updateUserList() {
+    if (this->_accessToken == "") {qWarning("WARN! User is not authenticated"); return;}
+    this->_rdbGetUserList();
+}
+
 void QFirebase::_refresh(QString refresh_token) {
     if (refresh_token.length() == 0) {qFatal("Token is empty");}
 
@@ -115,6 +125,19 @@ void QFirebase::_authMethod(QString email, QString password, QString method_name
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onAuthResponse(QByteArray)));
 }
 
+void QFirebase::_rdbGetUserList() {
+    if (this->_localId == "") {qFatal("No Local Id in QFirebase instance");}
+    if (this->m_name == "") {qFatal("No User Name in QFirebase instance");}
+
+    QJsonObject jsonObj;
+    QJsonDocument uploadDoc(jsonObj);
+
+    Firebase *fb = new Firebase(RDB_URI, "users.json");
+    fb->setValue(uploadDoc, "GET", "auth=" + this->_accessToken);
+
+    connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbGetUserListResponse(QByteArray)));
+}
+
 void QFirebase::_rdbSaveUserInfo() {
     if (this->_localId == "") {qFatal("No Local Id in QFirebase instance");}
     if (this->m_name == "") {qFatal("No User Name in QFirebase instance");}
@@ -131,7 +154,7 @@ void QFirebase::_rdbSaveUserInfo() {
     Firebase *fb = new Firebase(RDB_URI, "users/" + this->_localId + ".json");
     fb->setValue(uploadDoc, "PUT", "auth=" + this->_accessToken);
 
-    connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveResponse(QByteArray)));
+    connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveUserInfoResponse(QByteArray)));
 }
 
 void QFirebase::_setEmail(const QString &email) {
@@ -148,6 +171,25 @@ void QFirebase::_setName(const QString &name) {
 
     m_name = name;
     emit nameChanged();
+}
+
+void QFirebase::_setUserList(const QJsonObject &user_list) {
+    int i = 0;
+
+    foreach(const QString& key, user_list.keys()) {
+        QJsonObject subobj = user_list.value(key).toObject();
+        qDebug() << key;
+        qDebug() << subobj;
+
+        if (subobj.contains("name")) {
+            this->m_user_list.push_back(new UserListObject(key, subobj["name"].toString()));
+            i++;
+        }
+    }
+
+    if (i > 0) {
+        emit userListChanged();
+    }
 }
 
 void QFirebase::_onAuthResponse(QByteArray response) {
@@ -200,11 +242,22 @@ void QFirebase::_onAuthCompleted(QString status, QJsonObject auth_params, bool i
     }
 }
 
-void QFirebase::_onRdbSaveResponse(QByteArray response) {
-    qDebug() << "onRdbSaveResponse";
+void QFirebase::_onRdbSaveUserInfoResponse(QByteArray response) {
+    qDebug() << "_onRdbSaveUserInfoResponse";
 
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
     qDebug() << obj;
+}
+
+void QFirebase::_onRdbGetUserListResponse(QByteArray response) {
+    qDebug() << "_onRdbGetUserListResponse";
+
+    QJsonDocument document = QJsonDocument::fromJson(response);
+    QJsonObject obj = document.object();
+
+    qDebug() << obj;
+
+    this->_setUserList(obj);
 }
