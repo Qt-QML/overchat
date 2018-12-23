@@ -1,10 +1,13 @@
 QT += quick
 QT += core
 QT += network
+QT += sensors gui_private
 
 CONFIG += c++11
 
 QTPLUGIN += qsqlite
+
+QMAKE_INFO_PLIST =
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -21,7 +24,8 @@ SOURCES += \
     main.cpp \
     firebase.cpp \
     qfirebase.cpp \
-    userlistobject.cpp
+    userlistobject.cpp \
+    roomlistobject.cpp
 
 RESOURCES += qml.qrc
 
@@ -37,9 +41,19 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    components/singletons/qmldir
+    components/singletons/qmldir \
+    #Info.plist
 
 HEADERS += \
     firebase.h \
     qfirebase.h \
-    userlistobject.h
+    userlistobject.h \
+    roomlistobject.h
+  #  ioscamera.h
+
+#OBJECTIVE_SOURCES += \
+ #   ioscamera.mm
+
+#ios {
+ #   QMAKE_INFO_PLIST = ios/Info.plist
+#}

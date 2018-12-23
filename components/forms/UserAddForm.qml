@@ -104,7 +104,9 @@ Item {
             text: "ADD USER"
 
             onClicked: function() {
-//                User.logout();
+                if (root.userId && root.userName) {
+                    User.createRoom(root.userId, root.userName);
+                }
             }
         }
 

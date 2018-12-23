@@ -1,8 +1,9 @@
 import QtQuick 2.9
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
-
 import QtQuick.Dialogs 1.0
+
+//import IOSCamera 1.0
 
 import "qrc:/components/singletons/."
 
@@ -61,6 +62,11 @@ ApplicationWindow {
                 anchors.fill: parent
                 color: "lightgray";
             }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: camera.open()
+            }
         }
     }
 
@@ -105,18 +111,16 @@ ApplicationWindow {
         ListElement { label: "Add User"; onclick: function() {popup.open("./forms/UserAddForm.qml");} }
     }
 
-    FileDialog {
-        id: fileDialog
-        title: "Please choose a file"
-        folder: shortcuts.home
-        onAccepted: {
-            console.log("You chose: " + fileDialog.fileUrls)
-            Qt.quit()
-        }
-        onRejected: {
-            console.log("Canceled")
-            Qt.quit()
-        }
-        Component.onCompleted: visible = true
-    }
+    /*
+    IOSCamera {
+            id: camera
+            onImagePathChanged: {
+                // The captured image has changed. But since the path stays the
+                // same if you take several snapshots, we clear the source first
+                // to force a reload.
+                img.source = ""
+                img.source = imagePath
+            }
+      }
+            */
 }

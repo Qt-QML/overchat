@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.3
 
 import "./elements" as Elements
 
+import "qrc:/components/singletons/."
+
 Item {
     id: root
 
@@ -12,6 +14,8 @@ Item {
     anchors.fill: parent
 
     ColumnLayout {
+        anchors.fill: parent
+
         anchors.topMargin: 8
         anchors.leftMargin: 8
         anchors.rightMargin: 8
@@ -43,13 +47,40 @@ Item {
             }
         }
 
-        Rectangle {
-            color: "lightblue"
-
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            Rectangle {
+                anchors.fill: parent
+
+                color: "lightblue"
+            }
+
+            ListView {
+                id: roomList
+
+                anchors.fill: parent
+
+                clip: true
+
+                model: User.roomList
+
+                delegate: roomListDelegate
+                spacing: 5
+            }
+
+            Component {
+                id: roomListDelegate
+
+                Text {
+                    text: modelData.name
+                }
+            }
         }
 
-        anchors.fill: parent
+
+
+
     }
 }

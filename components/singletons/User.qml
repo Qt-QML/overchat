@@ -15,6 +15,7 @@ Item {
     readonly property string email: backend.email
     readonly property string name: backend.name
     readonly property alias  userList: backend.userList
+    readonly property alias  roomList: backend.roomList
 
     property var db;
 
@@ -34,10 +35,16 @@ Item {
             }
 
             backend.updateUserList();
+
+            backend.subscribeRoomList();
         }
 
         onUserListChanged: function() {
-            var ul = backend.userList;
+//            var ul = backend.userList;
+        }
+
+        onRoomListChanged: function() {
+            console.log(backend.roomList);
         }
     }
 
@@ -83,5 +90,20 @@ Item {
     function getUserList() {
         // backend.getUsers();
         // remove self from list
+    }
+
+    function createRoom(user_id, room_name, cb) {
+        var errors = [];
+        Functions.validate("required", "user_id", user_id, errors);
+        Functions.validate("required", "room_name", room_name, errors);
+
+        backend.createRoom(user_id, room_name);
+
+        if (errors.length > 0) {
+            cb("vald", errors);
+            return;
+        }
+
+//        Functions.connectOnce(backend.onCreateRoomCompleted, cb);
     }
 }
