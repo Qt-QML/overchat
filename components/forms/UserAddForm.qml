@@ -79,6 +79,8 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            Layout.margins: 20
+
             ComboBox {
                 id: userComboBox
 
@@ -100,6 +102,8 @@ Item {
 
         Elements.SubmitButton {
             id: logoutButton
+
+            Layout.margins: 20
 
             text: "ADD USER"
 

@@ -23,9 +23,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     firebase.cpp \
-    qfirebase.cpp \
     userlistobject.cpp \
-    roomlistobject.cpp
+    roomlistobject.cpp \
+    qfirebaseuser.cpp \
+    qfirebaseroom.cpp \
+    messagelistobject.cpp \
+    messagemodel.cpp
 
 RESOURCES += qml.qrc
 
@@ -46,9 +49,12 @@ DISTFILES += \
 
 HEADERS += \
     firebase.h \
-    qfirebase.h \
     userlistobject.h \
-    roomlistobject.h
+    roomlistobject.h \
+    qfirebaseuser.h \
+    qfirebaseroom.h \
+    messagelistobject.h \
+    messagemodel.h
   #  ioscamera.h
 
 #OBJECTIVE_SOURCES += \

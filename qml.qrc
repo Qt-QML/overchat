@@ -17,5 +17,7 @@
         <file>components/db/user.js</file>
         <file>components/essentials/functions.js</file>
         <file>components/forms/UserAddForm.qml</file>
+        <file>components/models/Room.qml</file>
+        <file>components/Chat.qml</file>
     </qresource>
 </RCC>

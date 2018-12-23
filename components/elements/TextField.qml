@@ -6,6 +6,11 @@ TextField {
 
     color: "white"
 
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.IBeamCursor
+    }
+
     Component.onCompleted: function() {
         background.radius = 4
         background.color = "#152433"

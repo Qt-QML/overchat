@@ -1,5 +1,4 @@
-#include "qfirebase.h"
-#include "userlistobject.h"
+#include "qfirebaseroom.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
@@ -13,8 +12,10 @@ int main(int argc, char *argv[])
 
     //qmlRegisterType<IOSCamera>("IOSCamera", 1, 0, "IOSCamera");
 
-    qmlRegisterType<QFirebase>("Firebase", 1, 0, "FirebaseBackend");
-    qmlRegisterType<UserListObject>("UserListObject", 1, 0, "UserListObject");
+    qRegisterMetaType<QFirebaseUser*>("QFirebaseUser *");
+
+    qmlRegisterType<QFirebaseUser>("FirebaseUser", 1, 0, "FirebaseUserBackend");
+    qmlRegisterType<QFirebaseRoom>("FirebaseRoom", 1, 0, "FirebaseRoomBackend");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

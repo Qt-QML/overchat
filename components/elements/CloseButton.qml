@@ -6,6 +6,15 @@ Button {
 
     text: "X"
 
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.OpenHandCursor
+
+        onClicked: function() {
+            root.onClicked();
+        }
+    }
+
     Component.onCompleted: function() {
         background.color = "#071019"
         background.border.color = "transparent"

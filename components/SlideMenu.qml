@@ -36,7 +36,7 @@ Item {
         Rectangle {
             anchors.fill: parent
 
-            color: "blue"
+            color: "#aabbaa"
         }
 
         ColumnLayout {
@@ -54,11 +54,12 @@ Item {
 
                     anchors.fill: parent
 
-                    color: "green"
+                    color: "#aaffaa"
                 }
 
                 ColumnLayout {
                     anchors.fill: parent
+                    anchors.margins: 8
 
                     Text {
                         id: sidepaneUserName
@@ -109,20 +110,26 @@ Item {
 
                 anchors.fill: parent
 
-                color: sidepaneItemMousearea.containsMouse ? "grey" : "cyan"
+                color: sidepaneItemMousearea.containsMouse ? "grey" : "#44ff66"
             }
 
-            Text {
-                text: label ? label : "Item #" + index
-                color: "black"
+            Item {
+                anchors.fill: parent
+                anchors.margins: 8
+
+                Text {
+                    text: label ? label : "Item #" + index
+                    color: "black"
+                }
             }
 
             MouseArea {
                 id: sidepaneItemMousearea
 
                 anchors.fill: parent
-
+                cursorShape: Qt.OpenHandCursor
                 hoverEnabled: true
+
                 onClicked: function() {
                     root.opened = false;
                     onclick();

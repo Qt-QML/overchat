@@ -57,15 +57,8 @@ ApplicationWindow {
             }
         }
         Item {
-            Rectangle{
+            Components.Chat {
                 id: chat
-                anchors.fill: parent
-                color: "lightgray";
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: camera.open()
             }
         }
     }
@@ -76,6 +69,8 @@ ApplicationWindow {
         currentIndex: swipeView.currentIndex
         anchors.bottom: swipeView.bottom
         anchors.horizontalCenter: swipeView.horizontalCenter
+
+        opacity: 0
     }
 
     Row {

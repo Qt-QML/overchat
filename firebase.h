@@ -11,6 +11,12 @@
 #include <QtGlobal>
 #include <QJsonDocument>
 
+const QString API_KEY = "AIzaSyAnxv6M_ALnWIzO4LpSsAFukER50gb3Umw";
+
+const QString RDB_URI       = "https://overchat-e401f.firebaseio.com";
+const QString AUTH_URI      = "https://www.googleapis.com/identitytoolkit/v3";
+const QString REFRESH_URI   = "https://securetoken.googleapis.com/v1";
+
 /*!
  * \brief The Firebase class provides access to the Firebase Database REST API
  *

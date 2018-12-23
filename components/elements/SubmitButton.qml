@@ -4,6 +4,11 @@ import QtQuick.Controls 2.2
 Button {
     id: root
 
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.OpenHandCursor
+    }
+
     Component.onCompleted: function() {
         background.implicitHeight = 20
         background.radius = 4

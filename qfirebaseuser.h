@@ -7,7 +7,7 @@
 // Docs at:
 // http://doc.qt.io/qt-5/qtqml-tutorials-extending-qml-example.html
 
-class QFirebase : public QObject
+class QFirebaseUser : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString          email       READ email          NOTIFY emailChanged)
@@ -16,7 +16,7 @@ class QFirebase : public QObject
     Q_PROPERTY(QList<QObject*>  roomList    READ roomList       NOTIFY roomListChanged)
 
 public:
-    explicit QFirebase(QObject *parent = nullptr);
+    explicit QFirebaseUser(QObject *parent = nullptr);
 
     const QString RESSTAT_SUCCESS   = "succ";
     const QString RESSTAT_FAIL      = "fail";
@@ -68,6 +68,9 @@ private:
     void _addUserListItem(QString id, QString name);
     void _addRoomListItem(QString id, QString name);
 
+    void _clearUserList();
+    void _clearRoomList();
+
     void _authMethod(QString email, QString password, QString methodName, QString displayName = "");
     void _refresh(QString refresh_token);
 
@@ -90,5 +93,7 @@ private slots:
     void _onRdbSaveRoomReferenceResponse(QByteArray);
     void _onRdbRoomListChange(QString);
 };
+
+Q_DECLARE_METATYPE(QFirebaseUser*)
 
 #endif // FIREBASE_H

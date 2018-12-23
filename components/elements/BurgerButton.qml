@@ -6,6 +6,15 @@ Button {
 
     text: "M"
 
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.OpenHandCursor
+
+        onClicked: function() {
+            root.onClicked();
+        }
+    }
+
     Component.onCompleted: function() {
         background.radius = 4
         background.color = "black"

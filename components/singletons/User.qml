@@ -5,11 +5,12 @@ import "../essentials/functions.js" as Functions
 
 import QtQuick 2.9
 import QtQuick.LocalStorage 2.0
-import Firebase 1.0
-import UserListObject 1.0
+import FirebaseUser 1.0
 
 Item {
     id: root
+
+    signal signinCompleted
 
     readonly property bool   authenticated: backend.email
     readonly property string email: backend.email
@@ -25,7 +26,7 @@ Item {
         UserDB.initDatabase(db);
     }
 
-    FirebaseBackend {
+    FirebaseUserBackend {
         id: backend
 
         onSigninCompleted: function(type, data) {
@@ -37,6 +38,8 @@ Item {
             backend.updateUserList();
 
             backend.subscribeRoomList();
+
+            root.signinCompleted();
         }
 
         onUserListChanged: function() {
@@ -105,5 +108,9 @@ Item {
         }
 
 //        Functions.connectOnce(backend.onCreateRoomCompleted, cb);
+    }
+
+    function getAuthParams() {
+        return backend.getAuthParams();
     }
 }

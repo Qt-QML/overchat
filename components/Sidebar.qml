@@ -3,6 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 import "./elements" as Elements
+import "./models" as Models
 
 import "qrc:/components/singletons/."
 
@@ -13,18 +14,26 @@ Item {
 
     anchors.fill: parent
 
+
+    Rectangle {
+        anchors.fill: parent
+
+        color: "lightblue"
+    }
+
     ColumnLayout {
         anchors.fill: parent
 
         anchors.topMargin: 8
-        anchors.leftMargin: 8
-        anchors.rightMargin: 8
         spacing: 8
 
         RowLayout {
             id: header
 
             spacing: 8
+
+            Layout.leftMargin: 8
+            Layout.rightMargin: 8
 
             Layout.alignment: Qt.AlignTop
             Layout.fillWidth: true
@@ -51,12 +60,6 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Rectangle {
-                anchors.fill: parent
-
-                color: "lightblue"
-            }
-
             ListView {
                 id: roomList
 
@@ -67,20 +70,57 @@ Item {
                 model: User.roomList
 
                 delegate: roomListDelegate
-                spacing: 5
+            }
+        }
+    }
+
+    Component {
+        id: roomListDelegate
+
+        Item {
+            width: parent.width
+            height: 50
+
+            Component.onCompleted: function() {
+                console.log("MDAT", modelData);
+                room.setRoomId(modelData.id);
             }
 
-            Component {
-                id: roomListDelegate
+            Rectangle {
+                id: roomListItemBackground
+
+                anchors.fill: parent
+
+                color: roomListItemMouseArea.containsMouse ? "orange" : "transparent"
+            }
+
+            Item {
+                anchors.fill: parent
+
+                anchors.topMargin: 8
+                anchors.leftMargin: 8
 
                 Text {
                     text: modelData.name
                 }
             }
+
+            Models.Room {
+                id: room
+            }
+
+            MouseArea {
+                id: roomListItemMouseArea
+
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.OpenHandCursor
+
+                onClicked: function() {
+                    chat.roomId = room.roomId;
+                    chat.messageListModel = room.messageList;
+                }
+            }
         }
-
-
-
-
     }
 }
