@@ -7,6 +7,10 @@ Button {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.OpenHandCursor
+
+        onClicked: function() {
+            root.onClicked();
+        }
     }
 
     Component.onCompleted: function() {

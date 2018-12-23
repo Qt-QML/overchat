@@ -19,7 +19,7 @@ private:
     bool    m_is_author;
 };
 
-class MessageModel : public QAbstractItemModel
+class MessageModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -30,7 +30,7 @@ public:
             IsAuthorRole
         };
 
-    MessageModel(QObject *parent = 0);
+    explicit MessageModel(QObject *parent = 0);
 
     void addMessage(const Message &message);
 

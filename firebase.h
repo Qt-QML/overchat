@@ -11,6 +11,8 @@
 #include <QtGlobal>
 #include <QJsonDocument>
 
+// See Answer about publicity of the Key:
+// https://stackoverflow.com/questions/37482366/is-it-safe-to-expose-firebase-apikey-to-the-public
 const QString API_KEY = "AIzaSyAnxv6M_ALnWIzO4LpSsAFukER50gb3Umw";
 
 const QString RDB_URI       = "https://overchat-e401f.firebaseio.com";

@@ -28,7 +28,7 @@ Item {
 
     Item {
         id: sidepane
-        anchors.left: parent
+//        anchors.left: parent
 
         width: 200
         height: parent.height

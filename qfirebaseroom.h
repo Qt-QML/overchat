@@ -8,7 +8,7 @@
 // Docs at:
 // http://doc.qt.io/qt-5/qtqml-tutorials-extending-qml-example.html
 
-class QFirebaseRoom : public QAbstractListModel
+class QFirebaseRoom : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QJsonObject auth_params)
@@ -24,11 +24,12 @@ public:
     Q_INVOKABLE void setAuthParams(QJsonObject auth_params);
     Q_INVOKABLE void setRoomId(QString room_id);
 
+    Q_INVOKABLE void sendMessage(QString text);
     Q_INVOKABLE void subscribeMessageList();
 
 signals:
     void roomIdChanged();
-    void messageListChanged();
+    void messageListChanged(QString author_id, QString text, bool is_author);
 
 private:
     QString _roomId;
@@ -46,11 +47,13 @@ private:
 
     void _clearMessageList();
 
+    void _rdbSaveMessage(QString text);
     void _rdbGetMessageList();
     void _rdbListenMessageList();
 
 
 private slots:
+    void _onRdbSaveMessageResponse(QByteArray);
     void _onRdbGetMessageListResponse(QByteArray);
     void _onRdbMessageListChange(QString);
 };

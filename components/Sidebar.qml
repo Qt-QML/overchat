@@ -11,14 +11,16 @@ Item {
     id: root
 
     signal menuButtonClicked
+    signal listItemClicked
+
+    property string selectedRoomId: ""
 
     anchors.fill: parent
-
 
     Rectangle {
         anchors.fill: parent
 
-        color: "lightblue"
+        color: "#DEF7FE"
     }
 
     ColumnLayout {
@@ -82,8 +84,7 @@ Item {
             height: 50
 
             Component.onCompleted: function() {
-                console.log("MDAT", modelData);
-                room.setRoomId(modelData.id);
+                room.setRoomId(modelData.id, modelData.name);
             }
 
             Rectangle {
@@ -91,7 +92,8 @@ Item {
 
                 anchors.fill: parent
 
-                color: roomListItemMouseArea.containsMouse ? "orange" : "transparent"
+                color: (roomListItemMouseArea.containsMouse || (root.selectedRoomId === modelData.id))
+                       ? "orange" : "transparent"
             }
 
             Item {
@@ -117,10 +119,20 @@ Item {
                 cursorShape: Qt.OpenHandCursor
 
                 onClicked: function() {
-                    chat.roomId = room.roomId;
-                    chat.messageListModel = room.messageList;
+                    chat.room = room;
+                    chat.name = modelData.name;
+
+                    root.selectedRoomId = modelData.id;
+                    root.listItemClicked();
                 }
             }
         }
+    }
+
+    function deselect() {
+        chat.room = null;
+        chat.name = "";
+
+        root.selectedRoomId = "";
     }
 }

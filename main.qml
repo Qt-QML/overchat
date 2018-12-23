@@ -54,11 +54,18 @@ ApplicationWindow {
                 id: sidebar
 
                 onMenuButtonClicked: menu.opened = true
+
+                onListItemClicked: swipeView.currentIndex = 1
             }
         }
         Item {
             Components.Chat {
                 id: chat
+
+                onBackButtonClicked: function() {
+                    swipeView.currentIndex = 0;
+                    sidebar.deselect();
+                }
             }
         }
     }

@@ -26,6 +26,11 @@ Item {
         UserDB.initDatabase(db);
     }
 
+    QtObject {
+        id: priv
+        property var userDB: ({})
+    }
+
     FirebaseUserBackend {
         id: backend
 
@@ -43,7 +48,13 @@ Item {
         }
 
         onUserListChanged: function() {
-//            var ul = backend.userList;
+            var ul = backend.userList;
+
+            priv.userDB = {};
+
+            for (var i = 0; i < ul.length; i++) {
+                priv.userDB[ul[i].id] = ul[i].name;
+            }
         }
 
         onRoomListChanged: function() {
@@ -112,5 +123,11 @@ Item {
 
     function getAuthParams() {
         return backend.getAuthParams();
+    }
+
+    function getUserNameById(user_id) {
+        var user_name = priv.userDB[user_id];
+
+        return user_name ? user_name : "<unknown>"
     }
 }

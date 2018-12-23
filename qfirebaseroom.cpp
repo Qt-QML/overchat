@@ -46,6 +46,13 @@ void QFirebaseRoom::setRoomId(QString room_id) {
     emit roomIdChanged();
 }
 
+void QFirebaseRoom::sendMessage(QString text) {
+    if (this->_roomId == "") {qWarning("WARN! Room ID was not provided");}
+    if (this->_accessToken == "") {qWarning("WARN! User is not authenticated"); return;}
+
+    this->_rdbSaveMessage(text);
+}
+
 void QFirebaseRoom::subscribeMessageList() {
     if (this->_roomId == "") {qWarning("WARN! Room ID was not provided");}
     if (this->_accessToken == "") {qWarning("WARN! User is not authenticated"); return;}
@@ -60,8 +67,26 @@ void QFirebaseRoom::subscribeMessageList() {
  * ==============================================================
  */
 
+void QFirebaseRoom::_rdbSaveMessage(QString text) {
+    if (this->_roomId == "") {qFatal("No Room Id in QFirebaseRoom instance");}
+    if (this->_localId == "") {qFatal("No Local Id in QFirebaseRoom instance");}
+    if (text == "") {qFatal("Empty Message Text Provided");}
+
+    QJsonObject jsonObj;
+
+    jsonObj["author"] = this->_localId;
+    jsonObj["text"] = text;
+
+    QJsonDocument uploadDoc(jsonObj);
+
+    Firebase *fb = new Firebase(RDB_URI, "rooms/" + this->_roomId + "/messages.json");
+    fb->setValue(uploadDoc, "POST", "auth=" + this->_accessToken);
+
+    connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveMessageResponse(QByteArray)));
+}
+
 void QFirebaseRoom::_rdbGetMessageList() {
-    if (this->_roomId == "") {qFatal("No Local Id in QFirebaseRoom instance");}
+    if (this->_roomId == "") {qFatal("No Room Id in QFirebaseRoom instance");}
     if (this->_localId == "") {qFatal("No Local Id in QFirebaseRoom instance");}
 
     QJsonObject jsonObj;
@@ -98,13 +123,9 @@ void QFirebaseRoom::_setMessageList(const QJsonObject &room_list) {
         qDebug() << subobj;
 
         if (subobj.contains("text") && subobj.contains("author")) {
-            this->_addMessageListItem(subobj["text"].toString(), subobj["text"].toString());
+            this->_addMessageListItem(subobj["author"].toString(), subobj["text"].toString());
             i++;
         }
-    }
-
-    if (i > 0) {
-        emit messageListChanged();
     }
 }
 
@@ -114,6 +135,8 @@ void QFirebaseRoom::_addMessageListItem(QString author_id, QString text) {
     qDebug() << "lid " << this->_localId << " id " << author_id;
 
     this->m_message_list.push_back(new MessageListObject(author_id, text, is_author));
+
+    emit messageListChanged(author_id, text, is_author);
 }
 
 void QFirebaseRoom::_clearMessageList() {
@@ -126,6 +149,14 @@ void QFirebaseRoom::_clearMessageList() {
  * ==============================================================
  */
 
+void QFirebaseRoom::_onRdbSaveMessageResponse(QByteArray response) {
+    qDebug() << "_onRdbSaveMessageResponse";
+
+    QJsonDocument document = QJsonDocument::fromJson(response);
+    QJsonObject obj = document.object();
+
+    qDebug() << obj;
+}
 
 void QFirebaseRoom::_onRdbGetMessageListResponse(QByteArray response) {
     qDebug() << "_onRdbGetMessageListResponse";
@@ -162,7 +193,5 @@ void QFirebaseRoom::_onRdbMessageListChange(QString database_update) {
     id = _id.mid(1, _id.length() - 1);
 
     this->_addMessageListItem(author_id, text);
-
-    emit messageListChanged();
 }
 
