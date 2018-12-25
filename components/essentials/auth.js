@@ -75,7 +75,7 @@ function getUserInfo(credentials, cb) {
 
 function checkUserRegistration(user_info, credentials, cb) {
     var http = new XMLHttpRequest();
-    var url = "https://overchat-e401f.firebaseio.com/users.json?access_token=" + credentials["access_token"];
+    var url = "https://overchat-e401f.firebaseio.com/users/" + user_info["id"] + ".json?access_token=" + credentials["access_token"];
 
     http.open("GET", url, true);
     http.setRequestHeader("Content-type", "application/json");
@@ -88,13 +88,9 @@ function checkUserRegistration(user_info, credentials, cb) {
                 var result = JSON.parse(http.responseText);
                 var registered = false;
 
-                var email_prept = user_info["email"].replace("@", "AT").replace(".", "DOT");
+                console.log("TORQUE", result, http.responseText);
 
-                console.log("REGISTRADOR", JSON.stringify(result), email_prept);
-
-                if (result && result[email_prept]) {
-                    console.log("FOUNDATION");
-
+                if (result) {
                     registered = true;
                 }
 

@@ -477,6 +477,9 @@ void QFirebaseUser::_onOauthResponse(QByteArray response) {
 
     qDebug() << obj;
 
+    QJsonDocument subdocument = QJsonDocument::fromJson(obj["rawUserInfo"].toString().toUtf8());
+    QJsonObject subobj = subdocument.object();
+
     if (obj.contains("error")) {
         emit signinCompleted(QFirebaseUser::RESSTAT_FAIL, obj);
 
@@ -486,7 +489,7 @@ void QFirebaseUser::_onOauthResponse(QByteArray response) {
     this->_accessToken   = obj["oauthAccessToken"].toString();
 //    this->_refreshToken  = obj["refreshToken"].toString();
 //    this->_localId       = obj["localId"].toString();
-    this->_localId       = obj["email"].toString().replace("@", "AT").replace(".", "DOT");
+    this->_localId       = subobj["id"].toString();
 //    this->_expiresIn     = obj["expiresIn"].toInt();
 
     qDebug() << "REPLACEEED" << this->_localId;
