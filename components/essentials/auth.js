@@ -88,8 +88,6 @@ function checkUserRegistration(user_info, credentials, cb) {
                 var result = JSON.parse(http.responseText);
                 var registered = false;
 
-                console.log("TORQUE", result, http.responseText);
-
                 if (result) {
                     registered = true;
                 }

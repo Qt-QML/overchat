@@ -109,9 +109,9 @@ ApplicationWindow {
     ListModel {
         id: menuItems
 
+        ListElement { label: "Authentication"; onclick: function() {popup.open("./forms/WebForm.qml");} }
         ListElement { label: "Profile"; onclick: function() {popup.open("./forms/ProfileForm.qml");} }
         ListElement { label: "Add User"; onclick: function() {popup.open("./forms/UserAddForm.qml");} }
-        ListElement { label: "Open OAuth Form"; onclick: function() {popup.open("./forms/WebForm.qml");} }
     }
 
     /*

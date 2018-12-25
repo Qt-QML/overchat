@@ -65,7 +65,7 @@ Item {
                         font.pixelSize: 18
                         font.bold: true
                         color: "white"
-                        text: "Add User"
+                        text: "Authentication"
                     }
                 }
 
@@ -92,8 +92,6 @@ Item {
                 var result = URLQuery.parseParams(data.url.toString());
 
                 if (result.code) {
-                    console.log("COD", result.code);
-
                     User.loginOauth(result.code, function() {
                         root.close();
                     });
