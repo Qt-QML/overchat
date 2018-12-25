@@ -80,7 +80,7 @@ void QFirebaseRoom::_rdbSaveMessage(QString text) {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(RDB_URI, "rooms/" + this->_roomId + "/messages.json");
-    fb->setValue(uploadDoc, "POST", "auth=" + this->_accessToken);
+    fb->setValue(uploadDoc, "POST", "access_token=" + this->_accessToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveMessageResponse(QByteArray)));
 }
@@ -93,7 +93,7 @@ void QFirebaseRoom::_rdbGetMessageList() {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(RDB_URI, "rooms/" + this->_roomId + "/messages.json");
-    fb->setValue(uploadDoc, "GET", "auth=" + this->_accessToken);
+    fb->setValue(uploadDoc, "GET", "access_token=" + this->_accessToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbGetMessageListResponse(QByteArray)));
 }

@@ -9,7 +9,7 @@ function initDatabase(db) {
 }
 
 function storeData(db, data) {
-    print('storeData()')
+    print('storeData()', JSON.stringify(data))
     if (!db || Object.keys(data).length == 0) {
         return;
     }
@@ -18,7 +18,7 @@ function storeData(db, data) {
         print('... check if a user object exists')
         var result = tx.executeSql('SELECT * from user WHERE id=1');
         // prepare object to be stored as JSON
-        var obj = [data.localId, data.email, data.accessToken, data.refreshToken, data.expiresIn, data.displayName];
+        var obj = [data.localId, data.email, data.idToken, data.refreshToken, data.expiresIn, data.displayName];
 
         if(result.rows.length === 1) {
             // use update

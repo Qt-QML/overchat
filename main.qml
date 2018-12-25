@@ -28,10 +28,10 @@ ApplicationWindow {
         User.loginLocal(function(type, data) {
             if (type === "fail") {
                 /*внутр. ошибка*/
-                popup.open("./forms/ProfileForm.qml");
+                popup.open("./forms/WebForm.qml");
             }
             if (type === "void") {
-                popup.open("./forms/ProfileForm.qml");
+                popup.open("./forms/WebForm.qml");
             }
         });
     }
@@ -111,6 +111,7 @@ ApplicationWindow {
 
         ListElement { label: "Profile"; onclick: function() {popup.open("./forms/ProfileForm.qml");} }
         ListElement { label: "Add User"; onclick: function() {popup.open("./forms/UserAddForm.qml");} }
+        ListElement { label: "Open OAuth Form"; onclick: function() {popup.open("./forms/WebForm.qml");} }
     }
 
     /*

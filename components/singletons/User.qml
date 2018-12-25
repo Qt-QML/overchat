@@ -2,6 +2,7 @@ pragma Singleton
 
 import "../db/user.js" as UserDB
 import "../essentials/functions.js" as Functions
+import "../essentials/auth.js" as Auth
 
 import QtQuick 2.9
 import QtQuick.LocalStorage 2.0
@@ -38,6 +39,8 @@ Item {
             if (type === "succ") {
                 var params = backend.getAuthParams();
                 UserDB.storeData(db, params);
+
+                console.log("DB SAVE", JSON.stringify(params));
             }
 
             backend.updateUserList();
@@ -66,44 +69,63 @@ Item {
         UserDB.readData(db, function(auth_params) {
             if (auth_params) {
                 Functions.connectOnce(backend.onSigninCompleted, cb);
-                backend.signinByAuthParams(auth_params);
+                var refresh_token = auth_params["refreshToken"];
+
+                if (refresh_token) {
+                    Auth.refreshToken(refresh_token, function(access_token, expires_in) {
+                        backend.signinOauth(auth_params["idToken"], auth_params["refreshToken"], auth_params["expiresIn"]);
+                        cb();
+                    });
+                } else {
+                    cb("void");
+                }
             } else {
                 cb("void");
             }
         });
     }
 
-    function login(email, password, name, isReg, cb) {
-        var errors = [];
-        Functions.validate("required", "email", email, errors);
-        Functions.validate("required", "password", password, errors);
+    function loginOauth(code, cb) {
+        UserDB.readData(db, function(auth_params) {
+            var refresh_token_saved = "";
 
-        if (isReg) {
-            Functions.validate("required", "name", name, errors);
-        }
+            console.log("DATAREAD", JSON.stringify(auth_params));
 
-        if (errors.length > 0) {
-            cb("vald", errors);
-            return;
-        }
+            if (auth_params && auth_params["refreshToken"]) {
+                refresh_token_saved = auth_params["refreshToken"];
+                console.log("SAVEDSAVED", refresh_token_saved);
+            }
 
-        Functions.connectOnce(backend.onSigninCompleted, cb);
+            Auth.getUserCredentials(code, function(auth_data, email, name) {
+                cb();
 
-        if (isReg) {
-            backend.signup(email, password, name);
-        } else {
-            backend.signin(email, password);
-        }
+                var access_token = auth_data["access_token"];
+                var refresh_token = auth_data["refresh_token"];
+                var expires_in = auth_data["expires_in"];
+
+                console.log("REQ DAT", JSON.stringify(auth_data));
+
+                refresh_token = refresh_token ? refresh_token : refresh_token_saved;
+
+                if (refresh_token === "") {
+                    console.log("ERROR: NO REFRESH TOKEN EXIST!");
+                    return;
+                }
+
+                if (auth_data["registered"]) {
+                    console.log("LOGIN OAUTH");
+                    backend.signinOauth(access_token, refresh_token, expires_in);
+                } else {
+                    console.log("SIGNUP OAUTH", auth_data["access_token"]);
+                    backend.signupOauth(access_token, refresh_token, expires_in);
+                }
+            });
+        });
     }
 
     function logout() {
         backend.signout();
         UserDB.deleteData(db);
-    }
-
-    function getUserList() {
-        // backend.getUsers();
-        // remove self from list
     }
 
     function createRoom(user_id, room_name, cb) {
@@ -117,8 +139,6 @@ Item {
             cb("vald", errors);
             return;
         }
-
-//        Functions.connectOnce(backend.onCreateRoomCompleted, cb);
     }
 
     function getAuthParams() {

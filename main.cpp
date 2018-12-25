@@ -1,3 +1,4 @@
+#include "qfirebaseuser.h"
 #include "qfirebaseroom.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>

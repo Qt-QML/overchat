@@ -156,10 +156,15 @@ Item {
     states: [
         State {
             when: User.authenticated === false
-            PropertyChanges { target: labels; visible: false }
-            PropertyChanges { target: fields; visible: true}
-            PropertyChanges { target: registerButton; visible: true}
-            PropertyChanges { target: loginButton; visible: true}
+//            PropertyChanges { target: labels; visible: false }
+//            PropertyChanges { target: fields; visible: true}
+//            PropertyChanges { target: registerButton; visible: true}
+//            PropertyChanges { target: loginButton; visible: true}
+//            PropertyChanges { target: logoutButton; visible: false}
+            PropertyChanges { target: labels; visible: true }
+            PropertyChanges { target: fields; visible: false }
+            PropertyChanges { target: registerButton; visible: false}
+            PropertyChanges { target: loginButton; visible: false}
             PropertyChanges { target: logoutButton; visible: false}
         },
         State {
