@@ -17,14 +17,15 @@ Item {
     FirebaseRoomBackend {
         id: backend
 
-        onMessageListChanged: function(author_id, text, is_author) {
+        onMessageListChanged: function(author_id, text, is_author, attachment) {
             if (!(author_id && text && (is_author !== null))) return;
 
             messageListModel.insert(0, {"modelData":
                 {
                     "authorId": author_id,
                     "text": text,
-                    "isAuthor": is_author
+                    "isAuthor": is_author,
+                    "attachment": attachment
                 }
             });
 
@@ -52,13 +53,17 @@ Item {
         backend.setAuthParams(aps);
     }
 
-    function sendMessage(text) {
+    function sendMessage(text, filePath) {
         if (text === "") {
             console.log("message text is empty");
             return;
         }
 
-        backend.sendMessage(text);
+        if (!filePath) {
+            filePath = "";
+        }
+
+        backend.sendMessage(text, filePath);
     }
 
     ListModel {

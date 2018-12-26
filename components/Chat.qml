@@ -1,10 +1,16 @@
+
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
+import QtQuick.Dialogs 1.1
 
 import "qrc:/components/singletons/."
 
+import "./essentials/requests.js" as Requests
+
 import "./elements" as Elements
 import "./models" as Models
+
+import FirebaseImage 1.0
 
 Item {
     id: root
@@ -144,7 +150,7 @@ Item {
                         text: "Send"
 
                         onClicked: function() {
-                            room.sendMessage(messageBox.text);
+                            room.sendMessage(messageBox.text, fileDialog.fileUrls);
                             messageBox.clear();
                         }
                     }
@@ -159,7 +165,7 @@ Item {
                         text: "I"
 
                         onClicked: function() {
-
+                            fileDialog.open();
                         }
                     }
                 }
@@ -170,8 +176,20 @@ Item {
             id: messageListDelegate
 
             Item {
+                id: messageItemWrap
+
                 width: parent.width
                 height: 50
+
+                Component.onCompleted: function() {
+                    if (modelData.attachment !== "") {
+                        var access_token = User.getAuthParams()["idToken"];
+
+                        liveImageItem.setImage(access_token, modelData.attachment);
+
+                        messageItemWrap.height += 150
+                    }
+                }
 
                 Item {
                     width: messageText.width < 200 ? messageText.width : 200
@@ -187,9 +205,29 @@ Item {
                         wrapMode: "Wrap"
                     }
                 }
+
+                FirebaseImageItem {
+                    id: liveImageItem
+
+                    height: 200
+                    width: 200
+                }
             }
         }
     }
+
+    FileDialog {
+           id: fileDialog
+           modality: Qt.WindowModal
+           title:  "Choose an image file"
+           selectMultiple: false
+           nameFilters: [ "Image files (*.png *.jpg)" ]
+           sidebarVisible: true
+           onAccepted: function() {
+               console.log("Accepted: " + fileDialog.fileUrls);
+           }
+           onRejected: { console.log("Rejected") }
+       }
 
     states: [
         State {

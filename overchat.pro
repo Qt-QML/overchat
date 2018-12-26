@@ -1,4 +1,4 @@
-QT += quick webview
+QT += quick widgets
 QT += core
 QT += network
 QT += sensors gui_private
@@ -27,7 +27,8 @@ SOURCES += \
     roomlistobject.cpp \
     qfirebaseuser.cpp \
     qfirebaseroom.cpp \
-    messagelistobject.cpp
+    messagelistobject.cpp \
+    imageitem.cpp
 
 RESOURCES += qml.qrc
 
@@ -52,12 +53,23 @@ HEADERS += \
     roomlistobject.h \
     qfirebaseuser.h \
     qfirebaseroom.h \
-    messagelistobject.h
+    messagelistobject.h \
+    imageitem.h
   #  ioscamera.h
 
 #OBJECTIVE_SOURCES += \
  #   ioscamera.mm
 
-#ios {
- #   QMAKE_INFO_PLIST = ios/Info.plist
-#}
+ios {
+    SOURCES += \
+        ioswebview.mm
+
+    HEADERS += \
+        ioswebview.h
+
+    QT += webview
+}
+
+macos {
+   QT += webengine
+}

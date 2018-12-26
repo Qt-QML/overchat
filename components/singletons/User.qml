@@ -2,7 +2,7 @@ pragma Singleton
 
 import "../db/user.js" as UserDB
 import "../essentials/functions.js" as Functions
-import "../essentials/auth.js" as Auth
+import "../essentials/requests.js" as Requests
 
 import QtQuick 2.9
 import QtQuick.LocalStorage 2.0
@@ -72,8 +72,8 @@ Item {
                 var refresh_token = auth_params["refreshToken"];
 
                 if (refresh_token) {
-                    Auth.refreshToken(refresh_token, function(access_token, expires_in) {
-                        backend.signinOauth(auth_params["idToken"], auth_params["refreshToken"], auth_params["expiresIn"]);
+                    Requests.refreshToken(refresh_token, function(access_token, expires_in) {
+                        backend.signinOauth(access_token, refresh_token, expires_in);
                         cb();
                     });
                 } else {
@@ -96,7 +96,7 @@ Item {
                 console.log("SAVEDSAVED", refresh_token_saved);
             }
 
-            Auth.getUserCredentials(code, function(auth_data, email, name) {
+            Requests.getUserCredentials(code, function(auth_data, email, name) {
                 cb();
 
                 var access_token = auth_data["access_token"];
@@ -108,8 +108,8 @@ Item {
                 refresh_token = refresh_token ? refresh_token : refresh_token_saved;
 
                 if (refresh_token === "") {
-                    console.log("ERROR: NO REFRESH TOKEN EXIST!");
-                    return;
+//                    console.log("ERROR: NO REFRESH TOKEN EXIST!");
+//                    return;
                 }
 
                 if (auth_data["registered"]) {

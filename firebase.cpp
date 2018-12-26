@@ -10,10 +10,16 @@
 
 Firebase::Firebase(const QString &hostName
                    , const QString &dbPath
+                   , bool forceEndCharFlag
                    , QObject *parent)
    : QObject(parent)
 {
-    host = forceEndChar(hostName.trimmed(), '/');
+    if (forceEndCharFlag) {
+        host = forceEndChar(hostName.trimmed(), '/');
+    } else {
+        host = hostName.trimmed();
+    }
+
     host = host.append(dbPath.trimmed());
 
     qDebug() << host;
@@ -85,13 +91,54 @@ void Firebase::setValue(QJsonDocument jsonDoc
 {
     QString path = buildPath(queryString);
     QNetworkRequest request(path);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/json");
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QByteArray jsonBA = jsonDoc.toJson(QJsonDocument::Compact);
 
     QBuffer *buffer=new QBuffer();
     buffer->open((QBuffer::ReadWrite));
     buffer->write(jsonBA);
+    buffer->seek(0);
+
+    QByteArray verbBA = verb.toUtf8();
+    manager->sendCustomRequest(request, verbBA ,buffer);
+    buffer->close();
+}
+
+void Firebase::setValueWithAuth(QJsonDocument jsonDoc
+                        , const QString& access_token
+                        , const QString& verb
+                        , const QString &queryString)
+{
+    qDebug() << "POSTURI" << queryString;
+
+    QString path = buildPath(queryString);
+    QNetworkRequest request(path);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader(QByteArray("Authorization"), QByteArray(QString("Bearer " + access_token).toLocal8Bit()));
+//    QByteArray jsonBA = jsonDoc.toJson(QJsonDocument::Compact);
+
+    QBuffer *buffer=new QBuffer();
+//    buffer->open((QBuffer::ReadWrite));
+//    buffer->write(jsonBA);
+//    buffer->seek(0);
+
+    QByteArray verbBA = verb.toUtf8();
+    manager->sendCustomRequest(request, verbBA ,buffer);
+    buffer->close();
+}
+
+void Firebase::setValue(QByteArray doc, QString type
+              , const QString& verb
+              , const QString &queryString)
+{
+    QString path = buildPath(queryString);
+    QNetworkRequest request(path);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      type);
+
+    QBuffer *buffer=new QBuffer();
+    buffer->open((QBuffer::ReadWrite));
+    buffer->write(doc);
     buffer->seek(0);
 
     QByteArray verbBA = verb.toUtf8();
@@ -108,7 +155,11 @@ void Firebase::getValue(const QString& queryString)
 
 void Firebase::replyFinished(QNetworkReply *reply)
 {
-    emit eventResponseReady(reply->readAll());
+    QByteArray reply_data = reply->readAll();
+
+    emit eventResponseReady(reply_data);
+
+    emit eventResponseReadyWithContentType(reply_data, reply->rawHeader("Content-Type"));
 }
 
 QString Firebase::getPath(const QString &queryString)

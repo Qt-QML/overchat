@@ -110,6 +110,7 @@ ApplicationWindow {
         id: menuItems
 
         ListElement { label: "Authentication"; onclick: function() {popup.open("./forms/WebForm.qml");} }
+        ListElement { label: "Authentication (IOS)"; onclick: function() {popup.open("./forms/WebFormIOS.qml");} }
         ListElement { label: "Profile"; onclick: function() {popup.open("./forms/ProfileForm.qml");} }
         ListElement { label: "Add User"; onclick: function() {popup.open("./forms/UserAddForm.qml");} }
     }

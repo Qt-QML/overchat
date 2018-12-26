@@ -28,12 +28,8 @@ public:
 
     Q_INVOKABLE QJsonObject getAuthParams();
 
-//    Q_INVOKABLE void        signin(QString email, QString password);
-//    Q_INVOKABLE void        signup(QString email, QString password, QString name);
-
     Q_INVOKABLE void        signinOauth(QString access_token, QString refresh_token, int expires_in = -1);
     Q_INVOKABLE void        signupOauth(QString access_token, QString refresh_token, int expires_in = -1);
-//    Q_INVOKABLE void        signinByAuthParams(QJsonObject auth_params);
     Q_INVOKABLE void        signout();
 
     Q_INVOKABLE void        updateUserList();
@@ -74,8 +70,6 @@ private:
     void _clearUserList();
     void _clearRoomList();
 
-//    void _authMethod(QString email, QString password, QString methodName, QString displayName = "");
-//    void _refresh(QString refresh_token);
     void _authOauth(QString access_token, QString refresh_token, int expires_in = -1);
     void _authRevokeRefreshToken();
 
@@ -87,11 +81,7 @@ private:
 
     void _rdbListenRoomList();
 
-
 private slots:
-//    void _onRefreshResponse(QByteArray);
-//    void _onAuthCompleted(QString, QJsonObject);
-
     void _onOauthResponse(QByteArray);
     void _onOauthCompleted(QString, QJsonObject);
     void _onOauthRevokeRefreshToken(QByteArray);

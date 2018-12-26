@@ -3,7 +3,13 @@
 #include "firebase.h"
 
 #include <QDebug>
+#include <QDir>
 #include <QQuickItem>
+#include <QFileInfo>
+
+// for filename randomizer
+#include <QRegularExpression>
+#include <QUuid>
 
 QFirebaseRoom::QFirebaseRoom(QObject *parent) : QObject(parent) {
 
@@ -46,9 +52,40 @@ void QFirebaseRoom::setRoomId(QString room_id) {
     emit roomIdChanged();
 }
 
-void QFirebaseRoom::sendMessage(QString text) {
+void QFirebaseRoom::sendMessage(QString text, QString file_path) {
     if (this->_roomId == "") {qWarning("WARN! Room ID was not provided");}
     if (this->_accessToken == "") {qWarning("WARN! User is not authenticated"); return;}
+
+    file_path = file_path.replace("file://", "");
+
+    if (file_path != "") {
+        QFile file(file_path);
+        QFileInfo info(file);
+
+        qDebug() << file_path << file.size();
+
+        if (!file.size()) {
+            qWarning() << "WARN! File is empty";
+            return;
+        }
+
+        if (file.open(QIODevice::ReadOnly)) {
+            QByteArray ba = file.readAll();
+            qDebug() << "Successfully opened the file.";
+
+            // save file to storage
+            this->_storageSaveImage(ba, info.suffix());
+
+            connect(this, &QFirebaseRoom::storageSuccessful, [this, text] (QString file_uri) {
+                this->_rdbSaveMessage(text, file_uri);
+            });
+
+            return;
+
+        } else {
+            qDebug() << "Cannot open the file.";
+        }
+    }
 
     this->_rdbSaveMessage(text);
 }
@@ -67,7 +104,7 @@ void QFirebaseRoom::subscribeMessageList() {
  * ==============================================================
  */
 
-void QFirebaseRoom::_rdbSaveMessage(QString text) {
+void QFirebaseRoom::_rdbSaveMessage(QString text, QString file_uri) {
     if (this->_roomId == "") {qFatal("No Room Id in QFirebaseRoom instance");}
     if (this->_localId == "") {qFatal("No Local Id in QFirebaseRoom instance");}
     if (text == "") {qFatal("Empty Message Text Provided");}
@@ -76,6 +113,10 @@ void QFirebaseRoom::_rdbSaveMessage(QString text) {
 
     jsonObj["author"] = this->_localId;
     jsonObj["text"] = text;
+
+    if (file_uri != "") {
+        jsonObj["attachment"] = file_uri;
+    }
 
     QJsonDocument uploadDoc(jsonObj);
 
@@ -108,6 +149,36 @@ void QFirebaseRoom::_rdbListenMessageList() {
 
 /**
  * ==============================================================
+ *                          STORAGE QUERIES
+ * ==============================================================
+ */
+
+void QFirebaseRoom::_storageSaveImage(QByteArray image, QString ext) {
+    if (this->_roomId == "") {qFatal("No Room Id in QFirebaseRoom instance");}
+    if (this->_localId == "") {qFatal("No Local Id in QFirebaseRoom instance");}
+
+    QString content_type = "";
+
+    if (ext == "jpg" || ext == "jpeg") content_type = "image/jpeg";
+    if (ext == "png") content_type = "image/png";
+
+    if (content_type == "") {
+        qWarning("WARN! Unsupported extension, aborting.");
+        return;
+    }
+
+    qDebug() << "QT MB SKASZH" << image.length();
+
+    QString name = QFirebaseRoom::GetRandomString();
+
+    Firebase *fb = new Firebase(STORAGE_UPLOAD_URI, "o");
+    fb->setValue(image, content_type, "POST", "upload_type=media&name=" + name + "&access_token=" + this->_accessToken);
+
+    connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onStorageSaveImage(QByteArray)));
+}
+
+/**
+ * ==============================================================
  *                        PROPERTY SETTERS
  * ==============================================================
  */
@@ -123,20 +194,26 @@ void QFirebaseRoom::_setMessageList(const QJsonObject &room_list) {
         qDebug() << subobj;
 
         if (subobj.contains("text") && subobj.contains("author")) {
-            this->_addMessageListItem(subobj["author"].toString(), subobj["text"].toString());
+            QString attachment = "";
+
+            if (subobj.contains("attachment")) {
+                attachment = subobj["attachment"].toString();
+            }
+
+            this->_addMessageListItem(subobj["author"].toString(), subobj["text"].toString(), attachment);
             i++;
         }
     }
 }
 
-void QFirebaseRoom::_addMessageListItem(QString author_id, QString text) {
+void QFirebaseRoom::_addMessageListItem(QString author_id, QString text, QString attachment) {
     bool is_author = (author_id == this->_localId);
 
-    qDebug() << "lid " << this->_localId << " id " << author_id;
+    qDebug() << "lid " << this->_localId << " id " << author_id << "ATT" << attachment;
 
-    this->m_message_list.push_back(new MessageListObject(author_id, text, is_author));
+    this->m_message_list.push_back(new MessageListObject(author_id, text, is_author, attachment));
 
-    emit messageListChanged(author_id, text, is_author);
+    emit messageListChanged(author_id, text, is_author, attachment);
 }
 
 void QFirebaseRoom::_clearMessageList() {
@@ -184,14 +261,46 @@ void QFirebaseRoom::_onRdbMessageListChange(QString database_update) {
 
     QJsonObject data = obj["data"].toObject();
 
-    QString _id, id, text, author_id;
+    QString _id, id, text, author_id, attachment;
 
     _id = data["path"].toString();
     author_id = data["author"].toString();
     text = data["text"].toString();
 
+    if (data.contains("attachment")) {
+        attachment = data["attachment"].toString();
+    } else {
+        attachment = "";
+    }
+
     id = _id.mid(1, _id.length() - 1);
 
-    this->_addMessageListItem(author_id, text);
+    this->_addMessageListItem(author_id, text, attachment);
+}
+
+/**
+ * ==============================================================
+ *                  STORAGE RESPONSE HANDLERS
+ * ==============================================================
+ */
+
+
+void QFirebaseRoom::_onStorageSaveImage(QByteArray response) {
+    qDebug() << "_onStorageSaveImage";
+
+    QJsonDocument document = QJsonDocument::fromJson(response);
+    QJsonObject obj = document.object();
+
+    qDebug() << obj;
+
+    emit storageSuccessful(obj["mediaLink"].toString());
+}
+
+QString QFirebaseRoom::GetRandomString()
+{
+    QString str = QUuid::createUuid().toString();
+    str.remove(QRegularExpression("{|}|-"));
+
+    return str;
 }
 

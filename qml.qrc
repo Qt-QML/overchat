@@ -21,6 +21,7 @@
         <file>components/Chat.qml</file>
         <file>components/forms/WebForm.qml</file>
         <file>components/essentials/URLQuery.js</file>
-        <file>components/essentials/auth.js</file>
+        <file>components/forms/WebFormIOS.qml</file>
+        <file>components/essentials/requests.js</file>
     </qresource>
 </RCC>

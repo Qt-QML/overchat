@@ -66,18 +66,9 @@ QJsonObject QFirebaseUser::getAuthParams() {
     return jsonObj;
 }
 
-//void QFirebaseUser::signin(QString email, QString password) {
-//    this->_authMethod(email, password, "relyingparty/verifyPassword");
-//}
-
-//void QFirebaseUser::signup(QString email, QString password, QString name) {
-//    this->_authMethod(email, password, "relyingparty/signupNewUser", name);
-//    connect(this, SIGNAL(signinCompleted(QString, QJsonObject)), this, SLOT(_onAuthCompleted(QString, QJsonObject)));
-//}
-
 void QFirebaseUser::signinOauth(QString access_token, QString refresh_token, int expires_in) {
     if (access_token == "") {qFatal("ERR! Oauth Param: access_token is empty");}
-    if (access_token == "") {qFatal("ERR! Oauth Param: refresh_token is empty");}
+//    if (refresh_token == "") {qFatal("ERR! Oauth Param: refresh_token is empty");}
     if (expires_in == -1) {qFatal("ERR! Oauth Param: expires_in is empty");}
 
     this->_authOauth(access_token, refresh_token, expires_in);
@@ -85,23 +76,13 @@ void QFirebaseUser::signinOauth(QString access_token, QString refresh_token, int
 
 void QFirebaseUser::signupOauth(QString access_token, QString refresh_token, int expires_in) {
     if (access_token == "") {qFatal("ERR! Oauth Param: access_token is empty");}
-    if (access_token == "") {qFatal("ERR! Oauth Param: refresh_token is empty");}
+//    if (refresh_token == "") {qFatal("ERR! Oauth Param: refresh_token is empty");}
     if (expires_in == -1) {qFatal("ERR! Oauth Param: expires_in is empty");}
 
     connect(this, SIGNAL(signinCompleted(QString, QJsonObject)), this, SLOT(_onOauthCompleted(QString, QJsonObject)));
 
     this->signinOauth(access_token, refresh_token, expires_in);
 }
-
-//void QFirebaseUser::signinByAuthParams(QJsonObject auth_params) {
-//    if (!auth_params.contains("email")) {return;}
-//    if (!auth_params.contains("refreshToken")) {return;}
-
-//    this->_possibleEmail    = auth_params["email"].toString();
-//    this->_possibleName     = auth_params["displayName"].toString();
-
-////    this->_refresh(auth_params["refreshToken"].toString());
-//}
 
 void QFirebaseUser::signout() {
     this->_authRevokeRefreshToken();
@@ -147,27 +128,9 @@ void QFirebaseUser::subscribeRoomList() {
  * ==============================================================
  */
 
-//void QFirebaseUser::_refresh(QString refresh_token) {
-//    if (refresh_token.length() == 0) {qFatal("Token is empty");}
-
-//   QJsonObject jsonObj;
-
-//   jsonObj["grant_type"] = "refresh_token";
-//   jsonObj["refresh_token"] = refresh_token;
-
-//   QJsonDocument uploadDoc(jsonObj);
-
-//   qDebug() << "REFRTOK" << refresh_token;
-
-//   Firebase *fb = new Firebase(REFRESH_URI, "token");
-//   fb->setValue(uploadDoc, "POST", "key=" + API_KEY);
-
-//   connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRefreshResponse(QByteArray)));
-//}
-
 void QFirebaseUser::_authOauth(QString access_token, QString refresh_token, int expires_in) {
     if (access_token == "") {qFatal("Access token is empty");}
-    if (refresh_token == "") {qFatal("Refresh token is empty");}
+//    if (refresh_token == "") {qFatal("Refresh token is empty");}
     if (expires_in == -1) {qFatal("Expires In is empty");}
 
     this->_refreshToken = refresh_token;
@@ -188,28 +151,6 @@ void QFirebaseUser::_authOauth(QString access_token, QString refresh_token, int 
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onOauthResponse(QByteArray)));
 }
-
-//void QFirebaseUser::_authMethod(QString email, QString password, QString method_name, QString display_name) {
-//    if (email.length() == 0) {qFatal("Trying to signin with empty password");}
-//    if (password.length() == 0) {qFatal("Trying to signin with empty password");}
-
-//    QJsonObject jsonObj;
-
-//    if (display_name != "") {
-//        jsonObj["displayName"] = display_name;
-//    }
-
-//    jsonObj["email"] = email;
-//    jsonObj["password"] = password;
-//    jsonObj["returnSecureToken"] = true;
-
-//    QJsonDocument uploadDoc(jsonObj);
-
-//    Firebase *fb = new Firebase(AUTH_URI, method_name);
-//    fb->setValue(uploadDoc, "POST", "key=" + API_KEY);
-
-//    connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onAuthResponse(QByteArray)));
-//}
 
 /**
  * ==============================================================
@@ -332,7 +273,12 @@ void QFirebaseUser::_authRevokeRefreshToken() {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(REVOKE_URI, "revoke");
-    fb->setValue(uploadDoc, "POST", "token=" + this->_refreshToken);
+
+    if (this->_refreshToken == "") {
+        fb->setValue(uploadDoc, "POST", "token=" + this->_accessToken);
+    } else {
+        fb->setValue(uploadDoc, "POST", "token=" + this->_refreshToken);
+    }
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onOauthRevokeRefreshToken(QByteArray)));
 }
@@ -431,43 +377,6 @@ void QFirebaseUser::_clearRoomList() {
  *               AUTHENTICATION RESPONSE HANDLERS
  * ==============================================================
  */
-
-//void QFirebaseUser::_onRefreshResponse(QByteArray response) {
-//    qDebug() << "onRefreshResponse";
-
-//    QJsonDocument document = QJsonDocument::fromJson(response);
-//    QJsonObject obj = document.object();
-
-//    qDebug() << obj;
-
-//    if (obj.contains("error")) {
-//        emit signinCompleted(QFirebaseUser::RESSTAT_FAIL, obj);
-
-//        this->_possibleEmail = "";
-//        this->_possibleName = "";
-//        return;
-//    }
-
-//    this->_localId       = obj["user_id"].toString();
-//    this->_accessToken   = obj["access_token"].toString();
-//    this->_refreshToken  = obj["refresh_token"].toString();
-//    this->_expiresIn     = obj["expires_in"].toInt();
-
-//    this->_setEmail(this->_possibleEmail);
-//    this->_setName(this->_possibleName);
-
-//    this->_possibleEmail = "";
-//    this->_possibleName = "";
-
-
-//    emit signinCompleted(QFirebaseUser::RESSTAT_SUCCESS, this->getAuthParams());
-//}
-
-//void QFirebaseUser::_onAuthCompleted(QString status, QJsonObject auth_params) {
-//    if (status == QFirebaseUser::RESSTAT_SUCCESS) {
-//        this->_rdbSaveUserInfo();
-//    }
-//}
 
 void QFirebaseUser::_onOauthResponse(QByteArray response) {
     qDebug() << "_onOauthResponse";

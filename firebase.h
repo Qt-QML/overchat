@@ -21,6 +21,9 @@ const QString REFRESH_URI   = "https://securetoken.googleapis.com/v1";
 const QString OAUTH_URI     = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/";
 const QString REVOKE_URI    = "https://accounts.google.com/o/oauth2/";
 
+const QString STORAGE_UPLOAD_URI    = "https://www.googleapis.com/upload/storage/v1/b/overchat-e401f.appspot.com";
+const QString STORAGE_DOWNLOAD_URI  = "https://www.googleapis.com/download/storage/v1/b/overchat-e401f.appspot.com";
+
 /*!
  * \brief The Firebase class provides access to the Firebase Database REST API
  *
@@ -60,6 +63,7 @@ public:
      */
     explicit Firebase(const QString& hostName = ""
                       , const QString& dbPath = ""
+                      , bool forceEndCharFlag = true
                       , QObject *parent = 0);
 
     /*!
@@ -86,6 +90,15 @@ public:
      */
     void setValue(QJsonDocument jsonDoc
                   , const QString& verb = "PATCH"
+                  , const QString &queryString = "");
+
+    void setValueWithAuth(QJsonDocument jsonDoc
+                  , const QString& access_token
+                  , const QString& verb = "PATCH"
+                  , const QString &queryString = "");
+
+    void setValue(QByteArray jsonDoc, QString type
+                  , const QString& verb = "POST"
                   , const QString &queryString = "");
 
     /*!
@@ -148,6 +161,8 @@ signals:
      * reply is the parameter passed to QNetworkAccessManager::finished().
      */
     void eventResponseReady(QByteArray replyData);
+
+    void eventResponseReadyWithContentType(QByteArray replyData, QByteArray contentType);
 
     /*!
      * \brief eventDataChanged Sent after a

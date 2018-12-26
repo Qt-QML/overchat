@@ -1,7 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
-import QtWebEngine 1.0
+import IOSWebView 1.0
 
 import "qrc:/components/singletons/."
 
@@ -80,17 +80,22 @@ Item {
             }
         }
 
-
-        WebEngineView {
+        IOSWebView {
             id: webView
+
+//            url: "https://www.whoishostingthis.com/tools/user-agent/"
 
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            onLoadingChanged: function(data) {
-                console.log(data.url.toString());
+            onUrlChanged: function(data) {
+                console.log("URLOK", data);
+            }
 
-                var result = URLQuery.parseParams(data.url.toString());
+            onPageFinished: function(url) {
+                console.log("PAGE URL:", url);
+
+                var result = URLQuery.parseParams(url);
 
                 if (result.code) {
                     User.loginOauth(result.code, function() {

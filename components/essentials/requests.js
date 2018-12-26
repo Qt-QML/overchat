@@ -1,9 +1,21 @@
 .pragma library
 
+const OAUTH_URL = "https://www.googleapis.com/oauth2/v4/token";
+const USERINFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo";
+
+const CLIENT_ID = "35451728355-c0uv4n0534buliuobqti2u8522261bo6.apps.googleusercontent.com";
+const CLIENT_SECRET = "AWRd0wwr0IafsCu0o02c3TS6";
+const REDIRECT_URI = "https://overchat-e401f.firebaseapp.com/__/auth/handler";
+
+const FIREBASE_URL = "https://overchat-e401f.firebaseio.com";
+
 function refreshToken(token, cb) {
     var http = new XMLHttpRequest();
-    var url = "https://www.googleapis.com/oauth2/v4/token?client_id=35451728355-c0uv4n0534buliuobqti2u8522261bo6.apps.googleusercontent.com&" +
-            "client_secret=AWRd0wwr0IafsCu0o02c3TS6&grant_type=refresh_token&refresh_token=" + token;
+    var url = OAUTH_URL +
+                "?client_id=" + CLIENT_ID +
+                "&client_secret=" + CLIENT_SECRET +
+                "&grant_type=refresh_token" +
+                "&refresh_token=" + token;
 
     http.open("POST", url, true);
 
@@ -27,8 +39,12 @@ function refreshToken(token, cb) {
 
 function getUserCredentials(code, cb) {
     var http = new XMLHttpRequest();
-    var url = "https://www.googleapis.com/oauth2/v4/token?client_id=35451728355-c0uv4n0534buliuobqti2u8522261bo6.apps.googleusercontent.com&" +
-                "client_secret=AWRd0wwr0IafsCu0o02c3TS6&redirect_uri=https://overchat-e401f.firebaseapp.com/__/auth/handler&grant_type=authorization_code&code=" + code;
+    var url = OAUTH_URL +
+                "?client_id=" + CLIENT_ID +
+                "&client_secret=" + CLIENT_SECRET +
+                "&redirect_uri=" + REDIRECT_URI +
+                "&grant_type=authorization_code" +
+                "&code=" + code;
 
     http.open("POST", url, true);
 
@@ -52,7 +68,8 @@ function getUserCredentials(code, cb) {
 
 function getUserInfo(credentials, cb) {
     var http = new XMLHttpRequest();
-    var url = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + credentials["access_token"];
+    var url = USERINFO_URL +
+            "?access_token=" + credentials["access_token"];
 
     http.open("GET", url, true);
     http.setRequestHeader("Content-type", "application/json");
@@ -75,7 +92,7 @@ function getUserInfo(credentials, cb) {
 
 function checkUserRegistration(user_info, credentials, cb) {
     var http = new XMLHttpRequest();
-    var url = "https://overchat-e401f.firebaseio.com/users/" + user_info["id"] + ".json?access_token=" + credentials["access_token"];
+    var url = FIREBASE_URL + "/users/" + user_info["id"] + ".json?access_token=" + credentials["access_token"];
 
     http.open("GET", url, true);
     http.setRequestHeader("Content-type", "application/json");
@@ -102,6 +119,30 @@ function checkUserRegistration(user_info, credentials, cb) {
                    user_info["email"],
                    user_info["name"]
                 );
+            } else {
+                console.log("error: " + http.status);
+                console.log(http.responseText);
+            }
+        }
+    }
+    http.send();
+}
+
+function getFileFromStorage(access_token, file_uri, cb) {
+    var http = new XMLHttpRequest();
+
+    console.log(access_token);
+
+    http.open("GET", file_uri, true);
+    http.setRequestHeader("Content-type", "application/json");
+    http.setRequestHeader("Authorization", "Bearer " + access_token);
+
+    http.onreadystatechange = function() { // Call a function when the state changes.
+        if (http.readyState == 4) {
+            if (http.status == 200) {
+                console.log("ok");
+
+                cb(http.responseText);
             } else {
                 console.log("error: " + http.status);
                 console.log(http.responseText);
