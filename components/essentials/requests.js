@@ -29,7 +29,7 @@ function refreshToken(token, cb) {
                 var result = JSON.parse(http.responseText);
                 cb(result["access_token"], result["expires_in"], token);
             } else {
-                console.log("error: " + http.status);
+                console.log("refreshToken error: " + http.status, token);
                 console.log(http.responseText);
             }
         }
@@ -82,7 +82,7 @@ function getUserInfo(credentials, cb) {
                 var result = JSON.parse(http.responseText);
                 checkUserRegistration(result, credentials, cb);
             } else {
-                console.log("error: " + http.status);
+                console.log("getUserInfo error: " + http.status, credentials);
                 console.log(http.responseText);
             }
         }
@@ -92,7 +92,7 @@ function getUserInfo(credentials, cb) {
 
 function checkUserRegistration(user_info, credentials, cb) {
     var http = new XMLHttpRequest();
-    var url = FIREBASE_URL + "/users/" + user_info["id"] + ".json?access_token=" + credentials["access_token"];
+    var url = FIREBASE_URL + "/users/" + user_info["id"] + ".json?"; // "access_token=" + credentials["access_token"];
 
     http.open("GET", url, true);
     http.setRequestHeader("Content-type", "application/json");
@@ -120,7 +120,7 @@ function checkUserRegistration(user_info, credentials, cb) {
                    user_info["name"]
                 );
             } else {
-                console.log("error: " + http.status);
+                console.log("checkUserRegistration error: " + http.status, url, JSON.stringify(credentials));
                 console.log(http.responseText);
             }
         }

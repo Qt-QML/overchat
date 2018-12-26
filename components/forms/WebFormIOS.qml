@@ -95,6 +95,11 @@ Item {
             onPageFinished: function(url) {
                 console.log("PAGE URL:", url);
 
+                if (url === "about:blank") {
+                    login();
+                    return;
+                }
+
                 var result = URLQuery.parseParams(url);
 
                 if (result.code) {

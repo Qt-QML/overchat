@@ -150,7 +150,8 @@ Item {
                         text: "Send"
 
                         onClicked: function() {
-                            room.sendMessage(messageBox.text, fileDialog.fileUrls);
+                            room.sendMessage(messageBox.text, fileDialog.fileUrls); // Desktop
+//                            room.sendMessage(messageBox.text); // iOS
                             messageBox.clear();
                         }
                     }
@@ -165,7 +166,7 @@ Item {
                         text: "I"
 
                         onClicked: function() {
-                            fileDialog.open();
+                            fileDialog.open(); // Desktop
                         }
                     }
                 }
@@ -216,6 +217,7 @@ Item {
         }
     }
 
+// Comment for iOS
     FileDialog {
            id: fileDialog
            modality: Qt.WindowModal

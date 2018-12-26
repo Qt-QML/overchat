@@ -193,8 +193,9 @@ void QFirebaseUser::_rdbSaveUserInfo() {
 
     QJsonDocument uploadDoc(jsonObj);
 
-    qDebug() << jsonObj;
-    qDebug() << uploadDoc;
+    qDebug() << "_rdbSaveUserInfo" << jsonObj;
+    qDebug() << "_rdbSaveUserInfo" << uploadDoc;
+    qDebug() << "_rdbSaveUserInfo" << this->_accessToken;
 
     Firebase *fb = new Firebase(RDB_URI, "users/" + this->_localId + ".json");
     fb->setValue(uploadDoc, "PUT", "access_token=" + this->_accessToken);
@@ -403,8 +404,15 @@ void QFirebaseUser::_onOauthResponse(QByteArray response) {
 
     qDebug() << "REPLACEEED" << this->_localId;
 
-    this->_setEmail(obj["email"].toString());
-    this->_setName(obj["fullName"].toString());
+
+    QString email = obj["email"].toString();
+    QString full_name = obj["fullName"].toString();
+
+    if (full_name == "") full_name = email;
+
+    this->_setEmail(email);
+    this->_setName(full_name);
+
 
     qDebug() << "SIGNIN COMPL";
     emit signinCompleted(QFirebaseUser::RESSTAT_SUCCESS, this->getAuthParams());
