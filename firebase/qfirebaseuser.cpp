@@ -4,8 +4,8 @@
 #include <QJsonArray>
 
 #include "qfirebaseuser.h"
-#include "userlistobject.h"
-#include "roomlistobject.h"
+#include "listobjects/userlistobject.h"
+#include "listobjects/roomlistobject.h"
 #include "firebase.h"
 
 QFirebaseUser::QFirebaseUser(QObject *parent) : QObject(parent) {
@@ -17,8 +17,6 @@ QFirebaseUser::QFirebaseUser(QObject *parent) : QObject(parent) {
     this->_refreshToken = "";
     this->_firebaseToken = "";
     this->_expiresIn    = -1;
-
-    this->_possibleEmail = "";
 }
 
 /**
@@ -211,15 +209,6 @@ void QFirebaseUser::_rdbSaveUserInfo() {
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveUserInfoResponse(QByteArray)));
 }
 
-/**
- * @brief Save Room to Realtime Database
- *
- * @param user_id   id of the opponent user
- * @param room_name name of the room that will appear for creator
- *
- * Name of the room for the opponent side will be generated from
- * creator's user name.
- */
 void QFirebaseUser::_rdbSaveRoom(QString user_id, QString room_name) {
     if (this->_localId == "") {qFatal("No Local Id in QFirebase instance");}
     if (this->m_name == "") {qFatal("No User Name in QFirebase instance");}

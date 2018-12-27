@@ -1,0 +1,65 @@
+{
+  "rules": {
+    // Список пользователей
+    "users": {
+      // Разрешено просматривать список пользователей
+      ".read": true,
+      // ".write": true,
+      "$user_id": {
+        // Разрешено просматривать запись пользователя
+        ".read": true,
+        ".write": "auth.uid != null",
+        // Разрешено создавать запись пользователя самим пользователем
+        // ".write": "$user_id === auth.uid",
+        // Запрещено создавать запись существующего User
+        // Если это создание
+        // Создание? тогда нельзя существующего newData.exists() == false,
+        // Обновление? тогда можно существующего
+        ".validate": "newData.exists() === root.child('users/' + $user_id).exists()",
+
+        "name": {
+          ".read": true,
+          ".write": true
+        },
+
+        "rooms": {
+            ".read": true,
+            // ".write": true,
+            // Нельзя удалять ссылки на комнаты
+            ".write": "newData.exists()",
+          "$room_id": {
+            ".read": true,
+            ".write": true
+          }
+        }
+      }
+    },
+
+    // Список комнат
+    "rooms": {
+      ".read": true,
+      ".write": true,
+      "$room_id": {
+        ".read": true,
+        ".write": true,
+
+        "members": {
+          ".read": true,
+            ".write": true,
+
+          "$user_id": {
+            ".read": false,
+            ".write": false,
+
+            // ".validate": "!root.child('users/' + $user_id).exists()",
+
+            "name": {
+              ".read": false,
+              ".write": false
+            }
+            }
+        }
+      }
+    }
+  }
+}

@@ -3,6 +3,9 @@
 
 #include <QObject>
 
+/**
+ * @brief Элемент списка пользователей
+ */
 class UserListObject : public QObject
 {
     Q_OBJECT

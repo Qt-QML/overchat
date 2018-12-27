@@ -3,6 +3,9 @@
 
 #include <QObject>
 
+/**
+ * @brief Элемент списка комнат
+ */
 class RoomListObject : public QObject
 {
     Q_OBJECT

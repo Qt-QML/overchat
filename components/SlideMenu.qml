@@ -30,7 +30,7 @@ Item {
         id: sidepane
 //        anchors.left: parent
 
-        width: 200
+        width: 260
         height: parent.height
 
         Rectangle {

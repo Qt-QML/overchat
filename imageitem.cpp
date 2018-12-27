@@ -52,6 +52,8 @@ void ImageItem::_onStorageGetImageResponse(QByteArray response, QByteArray conte
     if (content_type == "image/png") type = "PNG";
 
     if (type == "") {
+        qDebug() << response;
+
         qWarning("WARN! Error while downloading an image");
         return;
     }

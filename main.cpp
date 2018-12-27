@@ -1,5 +1,5 @@
-#include "qfirebaseuser.h"
-#include "qfirebaseroom.h"
+#include "firebase/qfirebaseuser.h"
+#include "firebase/qfirebaseroom.h"
 #include "imageitem.h"
 
 #include <qqmlcontext.h>
@@ -7,7 +7,7 @@
 #include <QQmlApplicationEngine>
 
 #ifdef Q_OS_IOS
-    #include "ioswebview.h"
+    #include "ios/ioswebview.h"
 #endif
 
 //#include "ioscamera.h"

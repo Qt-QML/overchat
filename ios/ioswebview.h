@@ -3,6 +3,11 @@
 
 #include <QQuickItem>
 
+/**
+ * @brief Обёртка Objective-C компонента для просмотра веб-страниц
+ *
+ * Для генерации событий загрузки страницы используется интерфейс QtWebViewDelegate.
+ */
 class IOSWebView : public QQuickItem
 {
     Q_OBJECT

@@ -22,13 +22,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    firebase.cpp \
-    userlistobject.cpp \
-    roomlistobject.cpp \
-    qfirebaseuser.cpp \
-    qfirebaseroom.cpp \
-    messagelistobject.cpp \
-    imageitem.cpp
+    firebase/firebase.cpp \
+    firebase/qfirebaseuser.cpp \
+    firebase/qfirebaseroom.cpp \
+    listobjects/userlistobject.cpp \
+    listobjects/roomlistobject.cpp \
+    listobjects/messagelistobject.cpp \
+    imageitem.cpp \
 
 RESOURCES += qml.qrc
 
@@ -46,26 +46,28 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \
     components/singletons/qmldir \
     #Info.plist
+    specials/fb_rules.json
 
 HEADERS += \
-    firebase.h \
-    userlistobject.h \
-    roomlistobject.h \
-    qfirebaseuser.h \
-    qfirebaseroom.h \
-    messagelistobject.h \
-    imageitem.h
-  #  ioscamera.h
+    firebase/firebase.h \
+    firebase/qfirebaseuser.h \
+    firebase/qfirebaseroom.h \
+    listobjects/userlistobject.h \
+    listobjects/roomlistobject.h \
+    listobjects/messagelistobject.h \
+    imageitem.h \
 
 #OBJECTIVE_SOURCES += \
  #   ioscamera.mm
 
 ios {
     SOURCES += \
-        ioswebview.mm
+        ios/ioswebview.mm \
+    #    ios/ioscamera.mm
 
     HEADERS += \
-        ioswebview.h
+        ios/ioswebview.h \
+    #    ios/ioscamera.h
 
     QT += webview
 }

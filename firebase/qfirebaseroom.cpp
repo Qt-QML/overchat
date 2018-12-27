@@ -1,5 +1,5 @@
 #include "qfirebaseroom.h"
-#include "messagelistobject.h"
+#include "listobjects/messagelistobject.h"
 #include "firebase.h"
 
 #include <QDebug>

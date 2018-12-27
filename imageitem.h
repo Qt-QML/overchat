@@ -5,10 +5,16 @@
 #include <QPainter>
 #include <QImage>
 
+/**
+ * @brief Загружаемое изображение
+ *
+ * QML-компонент позволяет асинхронно загружать изображение и выводить его на экран.
+ */
 class ImageItem : public QQuickPaintedItem
 {
-Q_OBJECT
+    Q_OBJECT
     Q_PROPERTY(QImage image READ image NOTIFY imageChanged)
+
 public:
     ImageItem(QQuickItem *parent = nullptr);
 

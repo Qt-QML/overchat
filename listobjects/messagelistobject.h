@@ -3,6 +3,9 @@
 
 #include <QObject>
 
+/**
+ * @brief Элемент списка сообщений
+ */
 class MessageListObject : public QObject
 {
     Q_OBJECT
