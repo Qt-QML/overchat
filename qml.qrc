@@ -23,5 +23,7 @@
         <file>components/essentials/URLQuery.js</file>
         <file>components/forms/WebFormIOS.qml</file>
         <file>components/essentials/requests.js</file>
+        <file>components/FileDialog.qml</file>
+        <file>images/no_image.jpg</file>
     </qresource>
 </RCC>

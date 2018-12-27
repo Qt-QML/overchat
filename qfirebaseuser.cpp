@@ -15,6 +15,7 @@ QFirebaseUser::QFirebaseUser(QObject *parent) : QObject(parent) {
     this->_localId      = "";
     this->_accessToken  = "";
     this->_refreshToken = "";
+    this->_firebaseToken = "";
     this->_expiresIn    = -1;
 
     this->_possibleEmail = "";
@@ -61,6 +62,7 @@ QJsonObject QFirebaseUser::getAuthParams() {
     jsonObj["localId"]      = this->_localId;
     jsonObj["idToken"]      = this->_accessToken;
     jsonObj["refreshToken"] = this->_refreshToken;
+    jsonObj["firebaseToken"] = this->_firebaseToken;
     jsonObj["expiresIn"]    = this->_expiresIn;
 
     return jsonObj;
@@ -90,6 +92,7 @@ void QFirebaseUser::signout() {
     this->_localId       = "";
     this->_accessToken   = "";
     this->_refreshToken  = "";
+    this->_firebaseToken  = "";
     this->_expiresIn     = -1;
 
     this->_setEmail("");
@@ -136,7 +139,7 @@ void QFirebaseUser::_authOauth(QString access_token, QString refresh_token, int 
     this->_refreshToken = refresh_token;
     this->_expiresIn = expires_in;
 
-    qDebug() << "EXPIN" << this->_expiresIn;
+//    qDebug() << "EXPIN" << this->_expiresIn;
 
     QJsonObject jsonObj;
 
@@ -166,7 +169,8 @@ void QFirebaseUser::_rdbGetUserList() {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(RDB_URI, "users.json");
-    fb->setValue(uploadDoc, "GET", "access_token=" + this->_accessToken);
+//    fb->setValue(uploadDoc, "GET", "access_token=" + this->_accessToken);
+    fb->setValue(uploadDoc, "GET", "auth=" + this->_firebaseToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbGetUserListResponse(QByteArray)));
 }
@@ -178,12 +182,15 @@ void QFirebaseUser::_rdbGetRoomList() {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(RDB_URI, "users/" + this->_localId + "/rooms.json");
-    fb->setValue(uploadDoc, "GET", "access_token=" + this->_accessToken);
+//    fb->setValue(uploadDoc, "GET", "access_token=" + this->_accessToken);
+    fb->setValue(uploadDoc, "GET", "auth=" + this->_firebaseToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbGetRoomListResponse(QByteArray)));
 }
 
 void QFirebaseUser::_rdbSaveUserInfo() {
+    qDebug() << "_rdbSaveUserInfo";
+
     if (this->_localId == "") {qFatal("No Local Id in QFirebase instance");}
     if (this->m_name == "") {qFatal("No User Name in QFirebase instance");}
 
@@ -193,12 +200,13 @@ void QFirebaseUser::_rdbSaveUserInfo() {
 
     QJsonDocument uploadDoc(jsonObj);
 
-    qDebug() << "_rdbSaveUserInfo" << jsonObj;
-    qDebug() << "_rdbSaveUserInfo" << uploadDoc;
-    qDebug() << "_rdbSaveUserInfo" << this->_accessToken;
+//    qDebug() << "_rdbSaveUserInfo" << jsonObj;
+//    qDebug() << "_rdbSaveUserInfo" << uploadDoc;
+//    qDebug() << "_rdbSaveUserInfo" << this->_accessToken;
 
     Firebase *fb = new Firebase(RDB_URI, "users/" + this->_localId + ".json");
-    fb->setValue(uploadDoc, "PUT", "access_token=" + this->_accessToken);
+//    fb->setValue(uploadDoc, "PUT", "access_token=" + this->_accessToken);
+    fb->setValue(uploadDoc, "PUT", "auth=" + this->_firebaseToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveUserInfoResponse(QByteArray)));
 }
@@ -231,7 +239,8 @@ void QFirebaseUser::_rdbSaveRoom(QString user_id, QString room_name) {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(RDB_URI, "rooms.json");
-    fb->setValue(uploadDoc, "POST", "access_token=" + this->_accessToken);
+//    fb->setValue(uploadDoc, "POST", "access_token=" + this->_accessToken);
+    fb->setValue(uploadDoc, "POST", "auth=" + this->_firebaseToken);
 
     connect(fb, &Firebase::eventResponseReady, [this, user_id, room_name] (QByteArray arg) {
         _onRdbSaveRoomResponse(arg, user_id, room_name);
@@ -248,13 +257,14 @@ void QFirebaseUser::_rdbSaveRoomReference(QString user_id, QString room_id, QStr
 
     QJsonDocument uploadDoc(jsonObj);
 
-    qDebug() << jsonObj;
-    qDebug() << uploadDoc;
+//    qDebug() << jsonObj;
+//    qDebug() << uploadDoc;
 
-    qDebug() << "UID" << user_id << "RID" << room_id << "RNAM" << room_name;
+//    qDebug() << "UID" << user_id << "RID" << room_id << "RNAM" << room_name;
 
     Firebase *fb = new Firebase(RDB_URI, "users/" + user_id + "/rooms/" + room_id +  ".json");
-    fb->setValue(uploadDoc, "PUT", "access_token=" + this->_accessToken);
+//    fb->setValue(uploadDoc, "PUT", "access_token=" + this->_accessToken);
+    fb->setValue(uploadDoc, "PUT", "auth=" + this->_firebaseToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveRoomReferenceResponse(QByteArray)));
 }
@@ -268,7 +278,7 @@ void QFirebaseUser::_rdbListenRoomList() {
 }
 
 void QFirebaseUser::_authRevokeRefreshToken() {
-    if (this->_refreshToken == "") {qWarning("No Refresh Token in QFirebase instance"); return;}
+    if (this->_refreshToken == "") {qWarning("No Refresh Token in QFirebase instance");}
 
     QJsonObject jsonObj;
     QJsonDocument uploadDoc(jsonObj);
@@ -313,8 +323,8 @@ void QFirebaseUser::_setUserList(const QJsonObject &user_list) {
 
     foreach (const QString& key, user_list.keys()) {
         QJsonObject subobj = user_list.value(key).toObject();
-        qDebug() << key;
-        qDebug() << subobj;
+//        qDebug() << key;
+//        qDebug() << subobj;
 
         if (subobj.contains("name")) {
             this->_addUserListItem(key, subobj["name"].toString());
@@ -334,8 +344,8 @@ void QFirebaseUser::_setRoomList(const QJsonObject &room_list) {
 
     foreach (const QString& key, room_list.keys()) {
         QJsonObject subobj = room_list.value(key).toObject();
-        qDebug() << key;
-        qDebug() << subobj;
+//        qDebug() << key;
+//        qDebug() << subobj;
 
         if (subobj.contains("name")) {
             this->_addRoomListItem(key, subobj["name"].toString());
@@ -349,7 +359,9 @@ void QFirebaseUser::_setRoomList(const QJsonObject &room_list) {
 }
 
 void QFirebaseUser::_addUserListItem(QString id, QString name) {
-    qDebug() << "aULI " << id << " " << name;
+//    qDebug() << "_addUserListItem";
+
+    //    qDebug() << "aULI " << id << " " << name;
     if (id == "") {return;}
     if (name == "") {return;}
 
@@ -357,7 +369,8 @@ void QFirebaseUser::_addUserListItem(QString id, QString name) {
 }
 
 void QFirebaseUser::_addRoomListItem(QString id, QString name) {
-    qDebug() << "aRLI " << id << " " << name;
+//    qDebug() << "_addRoomListItem";
+//    qDebug() << "aRLI " << id << " " << name;
 
     if (id == "") {return;}
     if (name == "") {return;}
@@ -385,7 +398,7 @@ void QFirebaseUser::_onOauthResponse(QByteArray response) {
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+//    qDebug() << obj;
 
     QJsonDocument subdocument = QJsonDocument::fromJson(obj["rawUserInfo"].toString().toUtf8());
     QJsonObject subobj = subdocument.object();
@@ -393,16 +406,19 @@ void QFirebaseUser::_onOauthResponse(QByteArray response) {
     if (obj.contains("error")) {
         emit signinCompleted(QFirebaseUser::RESSTAT_FAIL, obj);
 
+        qDebug() << obj;
+
         return;
     }
 
-    this->_accessToken   = obj["oauthAccessToken"].toString();
-//    this->_refreshToken  = obj["refreshToken"].toString();
-//    this->_localId       = obj["localId"].toString();
-    this->_localId       = subobj["id"].toString();
-//    this->_expiresIn     = obj["expiresIn"].toInt();
+    qDebug() << obj;
 
-    qDebug() << "REPLACEEED" << this->_localId;
+    this->_accessToken   = obj["oauthAccessToken"].toString();
+    this->_firebaseToken = obj["idToken"].toString();
+//    this->_refreshToken  = obj["refreshToken"].toString();
+    this->_localId       = obj["localId"].toString();
+//    this->_localId       = subobj["id"].toString();
+//    this->_expiresIn     = obj["expiresIn"].toInt();
 
 
     QString email = obj["email"].toString();
@@ -413,17 +429,11 @@ void QFirebaseUser::_onOauthResponse(QByteArray response) {
     this->_setEmail(email);
     this->_setName(full_name);
 
-
-    qDebug() << "SIGNIN COMPL";
     emit signinCompleted(QFirebaseUser::RESSTAT_SUCCESS, this->getAuthParams());
 }
 
 void QFirebaseUser::_onOauthCompleted(QString status, QJsonObject auth_params) {
-    qDebug() << "OOC START";
-
     if (status == QFirebaseUser::RESSTAT_SUCCESS) {
-        qDebug() << "OOC OK";
-
         this->_rdbSaveUserInfo();
     }
 }
@@ -434,7 +444,10 @@ void QFirebaseUser::_onOauthRevokeRefreshToken(QByteArray response) {
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 }
 
 /**
@@ -449,7 +462,10 @@ void QFirebaseUser::_onRdbSaveUserInfoResponse(QByteArray response) {
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 }
 
 void QFirebaseUser::_onRdbGetUserListResponse(QByteArray response) {
@@ -458,7 +474,10 @@ void QFirebaseUser::_onRdbGetUserListResponse(QByteArray response) {
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 
     this->_setUserList(obj);
 }
@@ -469,7 +488,10 @@ void QFirebaseUser::_onRdbGetRoomListResponse(QByteArray response) {
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 
     this->_setRoomList(obj);
 }
@@ -480,9 +502,10 @@ void QFirebaseUser::_onRdbSaveRoomResponse(QByteArray response, QString user_id,
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
-
-    // TODO: Error handling
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 
     QString room_id = obj["name"].toString();
 
@@ -499,13 +522,16 @@ void QFirebaseUser::_onRdbSaveRoomReferenceResponse(QByteArray response) {
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 }
 
 void QFirebaseUser::_onRdbRoomListChange(QString database_update) {
-    qDebug() << "_onRdbRoomListChange";
+//    qDebug() << "_onRdbRoomListChange";
 
-    qDebug() << database_update;
+//    qDebug() << database_update;
 
     // remove service wrap chars of response
     QString sub_string = database_update.mid(6, database_update.length() - 1);
@@ -513,7 +539,12 @@ void QFirebaseUser::_onRdbRoomListChange(QString database_update) {
     QJsonDocument document = QJsonDocument::fromJson(sub_string.toUtf8());
     QJsonObject obj = document.object();
 
-    qDebug() << "OBJ " << obj;
+//    qDebug() << "OBJ " << obj;
+
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 
     QJsonObject data = obj["data"].toObject();
 
@@ -523,8 +554,6 @@ void QFirebaseUser::_onRdbRoomListChange(QString database_update) {
     name = data["name"].toString();
 
     id = _id.mid(1, _id.length() - 1);
-
-    qDebug() << "oRRLC _id" << _id << " id " << id;
 
     this->_addRoomListItem(id, name);
 

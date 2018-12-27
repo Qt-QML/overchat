@@ -22,7 +22,6 @@ Firebase::Firebase(const QString &hostName
 
     host = host.append(dbPath.trimmed());
 
-    qDebug() << host;
     init();
 }
 
@@ -109,8 +108,6 @@ void Firebase::setValueWithAuth(QJsonDocument jsonDoc
                         , const QString& verb
                         , const QString &queryString)
 {
-    qDebug() << "POSTURI" << queryString;
-
     QString path = buildPath(queryString);
     QNetworkRequest request(path);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -179,7 +176,7 @@ QString Firebase::buildPath(const QString &queryString)
     if (queryString.length() > 0)
             destination.append(forceStartChar(queryString,'?'));
 
-    qDebug() << destination;
+//    qDebug() << destination;
 
     return destination;
 }

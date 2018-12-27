@@ -26,7 +26,8 @@
 
 - (void)pageDone
 {
-//    qDebug() << "PDONE";
+    qDebug() << "PDONE";
+//    Q_EMIT qIosWebViewPrivate->pageFinished(qIosWebViewPrivate->getUrl());
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
@@ -36,14 +37,19 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
+    [webView stopLoading];
+
     Q_UNUSED(webView);
+//    qDebug() << "PFINISH";
 
     Q_EMIT qIosWebViewPrivate->pageFinished(qIosWebViewPrivate->getUrl());
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    qDebug() << "DFLWE";
+    qDebug() << "DFLWE:" << error.code << error.localizedDescription;
+
+    Q_EMIT qIosWebViewPrivate->pageError(error.code, "UIWebView error", qIosWebViewPrivate->getUrl());
 
     Q_UNUSED(webView);
     Q_UNUSED(error);
@@ -57,11 +63,13 @@ IOSWebView::IOSWebView(QQuickItem *parent) :
     pWebView = NULL;
 
     connect(this, SIGNAL(updateWebViewSize()), this, SLOT(onUpdateWebViewSize()));
-    connect(this, SIGNAL(urlChanged(QString)), this, SLOT(onUrlChanged(QString)));
+//    connect(this, SIGNAL(urlChanged(QString)), this, SLOT(onUrlChanged(QString)));
 
     NSDictionary *dictionary = @{@"UserAgent": @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"};
     [[NSUserDefaults standardUserDefaults] registerDefaults:dictionary];
     [[NSUserDefaults standardUserDefaults] synchronize];
+
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
 }
 
 IOSWebView::~IOSWebView()
@@ -77,6 +85,10 @@ QString IOSWebView::getUrl() {
     return QUrl::fromNSURL(url).toString();
 }
 
+void IOSWebView::setUrl(QString url) {
+    this->onUrlChanged(url);
+}
+
 void IOSWebView::componentComplete()
 {
     QQuickItem::componentComplete();
@@ -85,7 +97,7 @@ void IOSWebView::componentComplete()
         pWebView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
         [pMainView addSubview:(UIWebView*)pWebView];
         ((UIWebView*)pWebView).scalesPageToFit = YES;
-        onUrlChanged(url);
+//        onUrlChanged(url);
 
         ((UIWebView*)pWebView).delegate = [[QtWebViewDelegate alloc] initWithQWebViewPrivate:this];
     }

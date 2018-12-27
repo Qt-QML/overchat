@@ -1,7 +1,6 @@
 
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.1
 
 import "qrc:/components/singletons/."
 
@@ -19,8 +18,15 @@ Item {
 
     property Models.Room room
     property string name: "<unnamed>"
+    property string fileUrl: ""
 
     signal backButtonClicked()
+
+    Component.onCompleted: function() {
+        if (!_is_ios) {
+            dialogLoader.source = "./FileDialog.qml";
+        }
+    }
 
     Rectangle {
         id: background
@@ -150,8 +156,8 @@ Item {
                         text: "Send"
 
                         onClicked: function() {
-                            room.sendMessage(messageBox.text, fileDialog.fileUrls); // Desktop
-//                            room.sendMessage(messageBox.text); // iOS
+                            room.sendMessage(messageBox.text, dialogLoader.item ? dialogLoader.item.fileURL : "");
+                            dialogLoader.item.fileURL = "";
                             messageBox.clear();
                         }
                     }
@@ -166,7 +172,8 @@ Item {
                         text: "I"
 
                         onClicked: function() {
-                            fileDialog.open(); // Desktop
+//                            fileDialog.open(); // Desktop
+                            dialogLoader.item.open();
                         }
                     }
                 }
@@ -187,6 +194,7 @@ Item {
                         var access_token = User.getAuthParams()["idToken"];
 
                         liveImageItem.setImage(access_token, modelData.attachment);
+                        liveImageItem.visible = true
 
                         messageItemWrap.height += 150
                     }
@@ -209,6 +217,7 @@ Item {
 
                 FirebaseImageItem {
                     id: liveImageItem
+                    visible: false
 
                     height: 200
                     width: 200
@@ -217,19 +226,18 @@ Item {
         }
     }
 
-// Comment for iOS
-    FileDialog {
-           id: fileDialog
-           modality: Qt.WindowModal
-           title:  "Choose an image file"
-           selectMultiple: false
-           nameFilters: [ "Image files (*.png *.jpg)" ]
-           sidebarVisible: true
-           onAccepted: function() {
-               console.log("Accepted: " + fileDialog.fileUrls);
-           }
-           onRejected: { console.log("Rejected") }
-       }
+    Item {
+        id: loaderWrapper
+
+        Loader {
+            id: dialogLoader
+            onLoaded: binderURL.target = dialogLoader.item;
+        }
+
+        Binding {id: binderURL; property: "fileURL"; value: root.fileUrl;}
+
+//        Connections {target: diaglogLoader.item}
+    }
 
     states: [
         State {

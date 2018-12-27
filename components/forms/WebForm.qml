@@ -88,8 +88,6 @@ Item {
             Layout.fillHeight: true
 
             onLoadingChanged: function(data) {
-                console.log(data.url.toString());
-
                 var result = URLQuery.parseParams(data.url.toString());
 
                 if (result.code) {

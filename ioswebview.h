@@ -12,6 +12,7 @@ public:
     ~IOSWebView();
 
     Q_INVOKABLE QString getUrl();
+    Q_INVOKABLE void    setUrl(QString url);
 
 protected:
     QSGNode* updatePaintNode(QSGNode *pNode, UpdatePaintNodeData*);
@@ -31,6 +32,7 @@ signals:
     void updateWebViewSize();
     void urlChanged(QString newUrl);
     void pageFinished(QString url);
+    void pageError(int code, QString error, QString url);
 
 private slots:
     void onUpdateWebViewSize();

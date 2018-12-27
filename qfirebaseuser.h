@@ -57,6 +57,7 @@ private:
     QString _localId;
     QString _accessToken;
     QString _refreshToken;
+    QString _firebaseToken;
     int     _expiresIn;
 
     void _setEmail(const QString &email);

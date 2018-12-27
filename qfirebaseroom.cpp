@@ -39,12 +39,11 @@ void QFirebaseRoom::setAuthParams(QJsonObject auth_params) {
     this->_localId      = auth_params["localId"].toString();
     this->_accessToken  = auth_params["idToken"].toString();
     this->_refreshToken = auth_params["refreshToken"].toString();
+    this->_firebaseToken = auth_params["firebaseToken"].toString();
     this->_expiresIn    = auth_params["expiresIn"].toInt();
 }
 
 void QFirebaseRoom::setRoomId(QString room_id) {
-    qDebug() << "sRI: " << room_id;
-
     this->_roomId = room_id;
 
     // TODO: Restrict any changes later
@@ -62,8 +61,6 @@ void QFirebaseRoom::sendMessage(QString text, QString file_path) {
         QFile file(file_path);
         QFileInfo info(file);
 
-        qDebug() << file_path << file.size();
-
         if (!file.size()) {
             qWarning() << "WARN! File is empty";
             return;
@@ -71,7 +68,7 @@ void QFirebaseRoom::sendMessage(QString text, QString file_path) {
 
         if (file.open(QIODevice::ReadOnly)) {
             QByteArray ba = file.readAll();
-            qDebug() << "Successfully opened the file.";
+//            qDebug() << "Successfully opened the file.";
 
             // save file to storage
             this->_storageSaveImage(ba, info.suffix());
@@ -121,7 +118,8 @@ void QFirebaseRoom::_rdbSaveMessage(QString text, QString file_uri) {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(RDB_URI, "rooms/" + this->_roomId + "/messages.json");
-    fb->setValue(uploadDoc, "POST", "access_token=" + this->_accessToken);
+//    fb->setValue(uploadDoc, "POST", "access_token=" + this->_accessToken);
+    fb->setValue(uploadDoc, "POST", "auth=" + this->_firebaseToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbSaveMessageResponse(QByteArray)));
 }
@@ -134,7 +132,8 @@ void QFirebaseRoom::_rdbGetMessageList() {
     QJsonDocument uploadDoc(jsonObj);
 
     Firebase *fb = new Firebase(RDB_URI, "rooms/" + this->_roomId + "/messages.json");
-    fb->setValue(uploadDoc, "GET", "access_token=" + this->_accessToken);
+//    fb->setValue(uploadDoc, "GET", "access_token=" + this->_accessToken);
+    fb->setValue(uploadDoc, "GET", "auth=" + this->_firebaseToken);
 
     connect(fb, SIGNAL(eventResponseReady(QByteArray)), this, SLOT(_onRdbGetMessageListResponse(QByteArray)));
 }
@@ -167,8 +166,6 @@ void QFirebaseRoom::_storageSaveImage(QByteArray image, QString ext) {
         return;
     }
 
-    qDebug() << "QT MB SKASZH" << image.length();
-
     QString name = QFirebaseRoom::GetRandomString();
 
     Firebase *fb = new Firebase(STORAGE_UPLOAD_URI, "o");
@@ -190,8 +187,8 @@ void QFirebaseRoom::_setMessageList(const QJsonObject &room_list) {
 
     foreach (const QString& key, room_list.keys()) {
         QJsonObject subobj = room_list.value(key).toObject();
-        qDebug() << key;
-        qDebug() << subobj;
+//        qDebug() << key;
+//        qDebug() << subobj;
 
         if (subobj.contains("text") && subobj.contains("author")) {
             QString attachment = "";
@@ -209,7 +206,7 @@ void QFirebaseRoom::_setMessageList(const QJsonObject &room_list) {
 void QFirebaseRoom::_addMessageListItem(QString author_id, QString text, QString attachment) {
     bool is_author = (author_id == this->_localId);
 
-    qDebug() << "lid " << this->_localId << " id " << author_id << "ATT" << attachment;
+//    qDebug() << "lid " << this->_localId << " id " << author_id << "ATT" << attachment;
 
     this->m_message_list.push_back(new MessageListObject(author_id, text, is_author, attachment));
 
@@ -227,29 +224,35 @@ void QFirebaseRoom::_clearMessageList() {
  */
 
 void QFirebaseRoom::_onRdbSaveMessageResponse(QByteArray response) {
-    qDebug() << "_onRdbSaveMessageResponse";
+//    qDebug() << "_onRdbSaveMessageResponse";
 
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 }
 
 void QFirebaseRoom::_onRdbGetMessageListResponse(QByteArray response) {
-    qDebug() << "_onRdbGetMessageListResponse";
+//    qDebug() << "_onRdbGetMessageListResponse";
 
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 
     this->_setMessageList(obj);
 }
 
 void QFirebaseRoom::_onRdbMessageListChange(QString database_update) {
-    qDebug() << "_onRdbMessageListChange";
+//    qDebug() << "_onRdbMessageListChange";
 
-    qDebug() << database_update;
+//    qDebug() << database_update;
 
     // remove service wrap chars of response
     QString sub_string = database_update.mid(6, database_update.length() - 1);
@@ -257,7 +260,12 @@ void QFirebaseRoom::_onRdbMessageListChange(QString database_update) {
     QJsonDocument document = QJsonDocument::fromJson(sub_string.toUtf8());
     QJsonObject obj = document.object();
 
-    qDebug() << "OBJ " << obj;
+//    qDebug() << "OBJ " << obj;
+
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 
     QJsonObject data = obj["data"].toObject();
 
@@ -286,12 +294,17 @@ void QFirebaseRoom::_onRdbMessageListChange(QString database_update) {
 
 
 void QFirebaseRoom::_onStorageSaveImage(QByteArray response) {
-    qDebug() << "_onStorageSaveImage";
+//    qDebug() << "_onStorageSaveImage";
 
     QJsonDocument document = QJsonDocument::fromJson(response);
     QJsonObject obj = document.object();
 
-    qDebug() << obj;
+//    qDebug() << obj;
+
+    if (obj.contains("error")) {
+        qDebug() << obj;
+        return;
+    }
 
     emit storageSuccessful(obj["mediaLink"].toString());
 }

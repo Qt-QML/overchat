@@ -1,5 +1,5 @@
 function initDatabase(db) {
-    print('initDatabase()')
+    console.log('UserDB - initDatabase()')
 
     db.transaction( function(tx) {
         print('... create table')
@@ -9,7 +9,8 @@ function initDatabase(db) {
 }
 
 function storeData(db, data) {
-    print('storeData()', JSON.stringify(data))
+    console.log('UserDB - storeData()')
+
     if (!db || Object.keys(data).length == 0) {
         return;
     }
@@ -33,16 +34,16 @@ function storeData(db, data) {
 }
 
 function readData(db, cb) {
-    print('readData()')
+    print('UserDB - readData()')
     if (!db) {
         return;
     }
 
     db.transaction( function(tx) {
-        print('... read user object')
+//        print('... read user object')
         var result = tx.executeSql('SELECT * FROM user WHERE id=1');
         if (result.rows.length === 1) {
-            print('... update User singleton')
+//            print('... update User singleton')
             var obj = result.rows[0];
 
             cb(obj);
@@ -53,7 +54,7 @@ function readData(db, cb) {
 }
 
 function deleteData(db) {
-    print('deleteData()')
+    print('UserDB - deleteData()')
     if (!db) {
         return;
     }

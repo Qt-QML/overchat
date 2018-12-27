@@ -6,7 +6,7 @@
 
 ImageItem::ImageItem(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
-    this->current_image = QImage(":/images/no_image.png");
+    this->current_image = QImage(":/images/no_image.jpg");
 }
 
 void ImageItem::paint(QPainter *painter)
@@ -38,8 +38,6 @@ void ImageItem::_storageGetImage(QString access_token, QString uri) {
 
     QJsonObject jsonObj;
     QJsonDocument uploadDoc(jsonObj);
-
-    qDebug() << "PREURI" << uri;
 
     Firebase *fb = new Firebase(uri, "", false);
     fb->setValueWithAuth(uploadDoc, access_token, "GET", "");

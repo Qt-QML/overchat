@@ -83,26 +83,33 @@ Item {
         IOSWebView {
             id: webView
 
-//            url: "https://www.whoishostingthis.com/tools/user-agent/"
-
             Layout.fillWidth: true
             Layout.fillHeight: true
 
             onUrlChanged: function(data) {
-                console.log("URLOK", data);
+//                console.log("URLOK", data);
             }
 
             onPageFinished: function(url) {
-                console.log("PAGE URL:", url);
-
-                if (url === "about:blank") {
-                    login();
-                    return;
-                }
+//                console.log("PAGE URL:", url);
 
                 var result = URLQuery.parseParams(url);
 
                 if (result.code) {
+                    User.loginOauth(result.code, function() {
+                        root.close();
+                    });
+                }
+            }
+
+            onPageError: function(code, error, url) {
+//                console.log("URLFAIL", url);
+
+                var result = URLQuery.parseParams(url);
+
+                if (result.code) {
+//                    console.log("code", result.code);
+
                     User.loginOauth(result.code, function() {
                         root.close();
                     });
@@ -133,7 +140,9 @@ Item {
             access_type: 'offline'
         }
 
-        webView.url = "https://accounts.google.com/o/oauth2/auth?%1".arg(URLQuery.serializeParams(params))
+        var url = "https://accounts.google.com/o/oauth2/auth?%1".arg(URLQuery.serializeParams(params));
+
+        webView.setUrl(url);
     }
 
     function close() {

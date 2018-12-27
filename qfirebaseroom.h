@@ -39,6 +39,7 @@ private:
     QString _localId;
     QString _accessToken;
     QString _refreshToken;
+    QString _firebaseToken;
     int     _expiresIn;
 
     QList<QObject*> m_message_list;

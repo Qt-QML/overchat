@@ -38,9 +38,9 @@ Item {
         onSigninCompleted: function(type, data) {
             if (type === "succ") {
                 var params = backend.getAuthParams();
-                UserDB.storeData(db, params);
+                console.log("SIGNIN COMPLETED, SAVING AUTH DATA: ", JSON.stringify(params))
 
-                console.log("DB SAVE", JSON.stringify(params));
+                UserDB.storeData(db, params);
             }
 
             backend.updateUserList();
@@ -61,69 +61,85 @@ Item {
         }
 
         onRoomListChanged: function() {
-            console.log(backend.roomList);
+//            console.log(backend.roomList);
         }
     }
 
     function loginLocal(cb) {
+        console.log("User - loginLocal()")
+
         UserDB.readData(db, function(auth_params) {
+            console.log("...data read", JSON.stringify(auth_params));
+
             if (auth_params) {
                 Functions.connectOnce(backend.onSigninCompleted, cb);
                 var refresh_token = auth_params["refreshToken"];
 
                 if (refresh_token) {
+                    console.log("...refresh token exists");
                     Requests.refreshToken(refresh_token, function(access_token, expires_in) {
+                        console.log("...access token refreshed, signing in");
                         backend.signinOauth(access_token, refresh_token, expires_in);
                         cb();
                     });
                 } else {
+                    console.log("...refresh token does not exist, skipping");
                     cb("void");
                 }
             } else {
+                console.log("...auth params does not exist, skipping");
+
                 cb("void");
             }
         });
     }
 
     function loginOauth(code, cb) {
+        console.log("User - loginOauth()");
+
         UserDB.readData(db, function(auth_params) {
+            console.log("...data read", JSON.stringify(auth_params));
             var refresh_token_saved = "";
 
-            console.log("DATAREAD", JSON.stringify(auth_params));
-
             if (auth_params && auth_params["refreshToken"]) {
+                console.log("...refresh token exists");
+
                 refresh_token_saved = auth_params["refreshToken"];
-                console.log("SAVEDSAVED", refresh_token_saved);
+            } else {
+                console.log("...refresh token does not exist");
             }
 
-            Requests.getUserCredentials(code, function(auth_data, email, name) {
+            console.log("...getting credentials");
+            Requests.getUserCredentials(code, function(auth_data) {
+                console.log("...got credentials", JSON.stringify(auth_data));
                 cb();
 
                 var access_token = auth_data["access_token"];
                 var refresh_token = auth_data["refresh_token"];
                 var expires_in = auth_data["expires_in"];
 
-                console.log("REQ DAT", JSON.stringify(auth_data));
-
                 refresh_token = refresh_token ? refresh_token : refresh_token_saved;
 
+                console.log("...refresh token is empty in doth DB and credentials");
+
                 if (refresh_token === "") {
-//                    console.log("ERROR: NO REFRESH TOKEN EXIST!");
-//                    return;
+                    console.log("...refresh token is empty in doth DB and credentials");
+                    // TODO: Need to revoke by access token
                 }
 
-                if (auth_data["registered"]) {
-                    console.log("LOGIN OAUTH");
-                    backend.signinOauth(access_token, refresh_token, expires_in);
-                } else {
-                    console.log("SIGNUP OAUTH", auth_data["access_token"]);
+//                if (auth_data["registered"]) {
+//                    console.log("...user is registered, signin now");
+//                    backend.signinOauth(access_token, refresh_token, expires_in);
+//                } else {
+//                    console.log("...user is not registered, signup now");
                     backend.signupOauth(access_token, refresh_token, expires_in);
-                }
+//                }
             });
         });
     }
 
     function logout() {
+        console.log("User - logout()");
         backend.signout();
         UserDB.deleteData(db);
     }

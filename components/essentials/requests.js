@@ -79,8 +79,17 @@ function getUserInfo(credentials, cb) {
             if (http.status == 200) {
                 console.log("ok");
 
+                console.log("User info", http.responseText);
+
                 var result = JSON.parse(http.responseText);
-                checkUserRegistration(result, credentials, cb);
+//                checkUserRegistration(result, credentials, cb);
+                cb({
+                       "access_token": credentials["access_token"],
+                       "refresh_token": credentials["refresh_token"],
+                       "expires_in": credentials["expires_in"],
+                       "id_token": credentials["id_token"],
+                   });
+
             } else {
                 console.log("getUserInfo error: " + http.status, credentials);
                 console.log(http.responseText);
@@ -90,43 +99,43 @@ function getUserInfo(credentials, cb) {
     http.send();
 }
 
-function checkUserRegistration(user_info, credentials, cb) {
-    var http = new XMLHttpRequest();
-    var url = FIREBASE_URL + "/users/" + user_info["id"] + ".json?"; // "access_token=" + credentials["access_token"];
+//function checkUserRegistration(user_info, credentials, cb) {
+//    var http = new XMLHttpRequest();
+//    var url = FIREBASE_URL + "/users/" + user_info["id"] + ".json?"; // "access_token=" + credentials["access_token"];
 
-    http.open("GET", url, true);
-    http.setRequestHeader("Content-type", "application/json");
+//    http.open("GET", url, true);
+//    http.setRequestHeader("Content-type", "application/json");
 
-    http.onreadystatechange = function() { // Call a function when the state changes.
-        if (http.readyState == 4) {
-            if (http.status == 200) {
-                console.log("ok");
+//    http.onreadystatechange = function() { // Call a function when the state changes.
+//        if (http.readyState == 4) {
+//            if (http.status == 200) {
+//                console.log("ok");
 
-                var result = JSON.parse(http.responseText);
-                var registered = false;
+//                var result = JSON.parse(http.responseText);
+//                var registered = false;
 
-                if (result) {
-                    registered = true;
-                }
+//                if (result) {
+//                    registered = true;
+//                }
 
-                cb({
-                       "registered": registered,
-                       "access_token": credentials["access_token"],
-                       "refresh_token": credentials["refresh_token"],
-                       "expires_in": credentials["expires_in"],
-                       "id_token": credentials["id_token"],
-                   },
-                   user_info["email"],
-                   user_info["name"]
-                );
-            } else {
-                console.log("checkUserRegistration error: " + http.status, url, JSON.stringify(credentials));
-                console.log(http.responseText);
-            }
-        }
-    }
-    http.send();
-}
+//                cb({
+//                       "registered": registered,
+//                       "access_token": credentials["access_token"],
+//                       "refresh_token": credentials["refresh_token"],
+//                       "expires_in": credentials["expires_in"],
+//                       "id_token": credentials["id_token"],
+//                   },
+//                   user_info["email"],
+//                   user_info["name"]
+//                );
+//            } else {
+//                console.log("checkUserRegistration error: " + http.status, url, JSON.stringify(credentials));
+//                console.log(http.responseText);
+//            }
+//        }
+//    }
+//    http.send();
+//}
 
 function getFileFromStorage(access_token, file_uri, cb) {
     var http = new XMLHttpRequest();

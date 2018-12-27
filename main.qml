@@ -15,6 +15,7 @@ ApplicationWindow {
     visible: true
 
     readonly property int responsiveWidth: 500
+    readonly property string webFormUrl: _is_ios ? "./forms/WebFormIOS.qml" : "./forms/WebForm.qml";
 
     width: 720
     height: 480
@@ -25,13 +26,15 @@ ApplicationWindow {
     title: qsTr("overchat")
 
     Component.onCompleted: function() {
+        console.info("PLATFORM isIOS", _is_ios)
+
         User.loginLocal(function(type, data) {
             if (type === "fail") {
                 /*внутр. ошибка*/
-                popup.open("./forms/WebForm.qml");
+                popup.open(root.webFormUrl);
             }
             if (type === "void") {
-                popup.open("./forms/WebForm.qml");
+                popup.open(root.webFormUrl);
             }
         });
     }
@@ -109,8 +112,7 @@ ApplicationWindow {
     ListModel {
         id: menuItems
 
-        ListElement { label: "Authentication"; onclick: function() {popup.open("./forms/WebForm.qml");} }
-        ListElement { label: "Authentication (IOS)"; onclick: function() {popup.open("./forms/WebFormIOS.qml");} }
+        ListElement { label: "Authentication"; onclick: function() {popup.open(root.webFormUrl);} }
         ListElement { label: "Profile"; onclick: function() {popup.open("./forms/ProfileForm.qml");} }
         ListElement { label: "Add User"; onclick: function() {popup.open("./forms/UserAddForm.qml");} }
     }
