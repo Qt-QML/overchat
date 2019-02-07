@@ -3,11 +3,14 @@
 const OAUTH_URL = "https://www.googleapis.com/oauth2/v4/token";
 const USERINFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo";
 
-const CLIENT_ID = "35451728355-c0uv4n0534buliuobqti2u8522261bo6.apps.googleusercontent.com";
+// Идентификатор веб-клиента (Firebase -> Authentication -> Способ входа -> Google -> Настройка SDK для веб-клиента -> Идентификатор веб-клиента)
+const CLIENT_ID = "<ID в API Console>.apps.googleusercontent.com";
+// Секрет клиента
 const CLIENT_SECRET = "AWRd0wwr0IafsCu0o02c3TS6";
-const REDIRECT_URI = "https://overchat-e401f.firebaseapp.com/__/auth/handler";
-
-const FIREBASE_URL = "https://overchat-e401f.firebaseio.com";
+// URI перенаправления, указанный в настройках API Console
+const REDIRECT_URI = "https://<Firebase ID>.firebaseapp.com/__/auth/handler";
+// URI Firebase
+const FIREBASE_URL = "https://<ID_проекта>.firebaseio.com";
 
 function refreshToken(token, cb) {
     var http = new XMLHttpRequest();

@@ -14,16 +14,23 @@
 // По поводу публичной передачи ключа приложения:
 // https://stackoverflow.com/questions/37482366/is-it-safe-to-expose-firebase-apikey-to-the-public
 
-const QString API_KEY = "AIzaSyAnxv6M_ALnWIzO4LpSsAFukER50gb3Umw";
+const QString API_KEY = "<API-ключ здесь>";
 
-const QString RDB_URI       = "https://overchat-e401f.firebaseio.com";
+// URI удалённой БД
+const QString RDB_URI       = "https://<ID_проекта>.firebaseio.com";
+// URI идентификации
 const QString AUTH_URI      = "https://www.googleapis.com/identitytoolkit/v3";
+// URI обновления токена
 const QString REFRESH_URI   = "https://securetoken.googleapis.com/v1";
+// URI аутентификации
 const QString OAUTH_URI     = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/";
+// URI отзыва токена
 const QString REVOKE_URI    = "https://accounts.google.com/o/oauth2/";
 
-const QString STORAGE_UPLOAD_URI    = "https://www.googleapis.com/upload/storage/v1/b/overchat-e401f.appspot.com";
-const QString STORAGE_DOWNLOAD_URI  = "https://www.googleapis.com/download/storage/v1/b/overchat-e401f.appspot.com";
+// URI загрузки в хранилище
+const QString STORAGE_UPLOAD_URI    = "https://www.googleapis.com/upload/storage/v1/b/<ID_проекта>.appspot.com";
+// URI выгрузки из хранилища
+const QString STORAGE_DOWNLOAD_URI  = "https://www.googleapis.com/download/storage/v1/b/<ID_проекта>.appspot.com";
 
 /*!
  * \brief The Firebase class provides access to the Firebase Database REST API
